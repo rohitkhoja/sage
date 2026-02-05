@@ -1,4 +1,4 @@
-# SAGE: Similarity-Aware Graph-Enhanced Retrieval
+# SAGE: Structure Aware Graph Expansion 
 
 A framework for **graph-enhanced retrieval-augmented generation (RAG)** over multi-modal knowledge sources (documents and tables). SAGE constructs knowledge graphs from heterogeneous data using embedding similarity, HNSW indexing, and FAISS-accelerated search, then evaluates how graph-based neighbor expansion improves retrieval accuracy compared to flat vector search.
 
