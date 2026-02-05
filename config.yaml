@@ -1,0 +1,67 @@
+# Enhanced Pipeline Configuration
+pipeline:
+  # GPU Configuration
+  num_gpus: auto  # or specific number
+  gpu_memory_fraction: 0.9
+  mixed_precision: true
+  
+  # Processing Parameters
+  similarity_threshold: 0.8
+  graph_similarity_threshold: 0.3
+  batch_size: auto  # Auto-determined based on GPU memory
+  
+  # Caching
+  enable_caching: true
+  cache_compression: true
+  cache_cleanup_interval: 3600  # seconds
+  
+  # FAISS Configuration
+  faiss:
+    index_type: "HNSW"  # or "IVF", "Flat"
+    hnsw_m: 32
+    hnsw_ef_construction: 200
+    hnsw_ef_search: 100
+    max_neighbors: 200
+    update_interval: 30  # seconds
+    
+  # Performance Tuning
+  performance:
+    dataloader_workers: auto
+    pin_memory: true
+    persistent_workers: true
+    prefetch_factor: 2
+    max_retries: 3
+    
+  # Monitoring
+  monitoring:
+    enable_health_checks: true
+    stats_interval: 60  # seconds
+    memory_threshold: 0.95
+    
+  # Output Configuration
+  output:
+    save_intermediate: true
+    compression_level: 6
+    backup_count: 3
+    
+# Model Configuration
+models:
+  embedding_model: "sentence-transformers/all-MiniLM-L6-v2"
+  # Alternative models:
+  # "sentence-transformers/all-mpnet-base-v2"  # Higher quality, slower
+  # "sentence-transformers/paraphrase-MiniLM-L3-v2"  # Faster, smaller
+  
+# Logging Configuration
+logging:
+  level: "INFO"
+  format: "{time:YYYY-MM-DD HH:mm:ss} | {level} | {name}:{function}:{line} - {message}"
+  rotation: "100 MB"
+  retention: "1 week"
+  
+# Directory Structure
+directories:
+  output: "output"
+  cache: "output/chunks_cache"
+  faiss_index: "output/faiss_index"
+  graphs: "output/incremental_graphs"
+  logs: "logs"
