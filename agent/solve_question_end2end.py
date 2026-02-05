@@ -19,7 +19,7 @@ def make_request(path: str, params: Dict = None) -> Any:
         response.raise_for_status()
         return response.json()
     except Exception as e:
-        print(f"❌ Request failed: {path} - {e}")
+        print(f" Request failed: {path} - {e}")
         return None
 
 def extract_node_indices(results: List[Dict]) -> Set[int]:
@@ -57,27 +57,27 @@ def solve_question(question: str):
         author_part = author_part.replace("find a paper that", "").replace("find papers that", "").strip()
         author_part = author_part.replace("a paper", "").replace("papers", "").strip()
         
-        print(f"📋 Plan:")
-        print(f"  1. Search for author: '{author_part}'")
-        print(f"  2. Get papers by this author")
-        print(f"  3. Get papers that cite those papers")
-        print(f"  4. Return results\n")
+        print(f" Plan:")
+        print(f" 1. Search for author: '{author_part}'")
+        print(f" 2. Get papers by this author")
+        print(f" 3. Get papers that cite those papers")
+        print(f" 4. Return results\n")
         
         # Step 1: Search for author
-        print(f"🔍 Step 1: Searching for author '{author_part}'...")
+        print(f" Step 1: Searching for author '{author_part}'...")
         author_results = make_request('/search_authors_by_name', {
             'query': author_part,
             'top_k': 25
         })
         
         if not author_results:
-            print("❌ Could not find author")
+            print(" Could not find author")
             return []
         
         author_list = author_results if isinstance(author_results, list) else author_results.get('results', [])
         
         if not author_list:
-            print("❌ No authors found")
+            print(" No authors found")
             return []
         
         # Smart author selection: check if top result matches exactly
@@ -96,7 +96,7 @@ def solve_question(question: str):
             if test_papers and len(test_papers) > 0:
                 # Check if any papers have citations
                 has_citations = False
-                for paper_id in test_papers[:5]:  # Check first 5 papers
+                for paper_id in test_papers[:5]: # Check first 5 papers
                     citing = make_request('/get_papers_citing', {'paper_id': str(paper_id)})
                     if citing and len(citing) > 0:
                         has_citations = True
@@ -105,23 +105,23 @@ def solve_question(question: str):
                 if has_citations:
                     # Exact match has papers with citations - use only this one
                     selected_authors = [author_id]
-                    print(f"✅ Exact match found: {first_name} (ID: {author_id}) - has {len(test_papers)} papers with citations")
+                    print(f" Exact match found: {first_name} (ID: {author_id}) - has {len(test_papers)} papers with citations")
                 else:
                     # Exact match has papers but no citations - use top 2 results for broader search
-                    print(f"⚠️ Exact match '{first_name}' has papers but no citations, considering top 2 authors...")
+                    print(f" Exact match '{first_name}' has papers but no citations, considering top 2 authors...")
                     for i, author in enumerate(author_list[:2], 1):
                         author_id_val = int(author.get('node_index', author.get('node_index')))
                         author_name = author.get('metadata', {}).get('DisplayName', 'Unknown')
                         selected_authors.append(author_id_val)
-                        print(f"✅ Author {i}: {author_name} (ID: {author_id_val})")
+                        print(f" Author {i}: {author_name} (ID: {author_id_val})")
             else:
                 # Exact match has no papers - use top 2 results
-                print(f"⚠️ Exact match '{first_name}' has no papers, considering top 2 authors...")
+                print(f" Exact match '{first_name}' has no papers, considering top 2 authors...")
                 for i, author in enumerate(author_list[:2], 1):
                     author_id_val = int(author.get('node_index', author.get('node_index')))
                     author_name = author.get('metadata', {}).get('DisplayName', 'Unknown')
                     selected_authors.append(author_id_val)
-                    print(f"✅ Author {i}: {author_name} (ID: {author_id_val})")
+                    print(f" Author {i}: {author_name} (ID: {author_id_val})")
         else:
             # No exact match - use top 2 results
             print(f"No exact match for '{author_part}', using top 2 authors...")
@@ -129,14 +129,14 @@ def solve_question(question: str):
                 author_id = int(author.get('node_index', author.get('node_index')))
                 author_name = author.get('metadata', {}).get('DisplayName', 'Unknown')
                 selected_authors.append(author_id)
-                print(f"✅ Author {i}: {author_name} (ID: {author_id})")
+                print(f" Author {i}: {author_name} (ID: {author_id})")
         
         if not selected_authors:
-            print("❌ No authors selected")
+            print(" No authors selected")
             return []
         
         # Step 2: Get papers by author
-        print(f"\n🔍 Step 2: Getting papers by {len(selected_authors)} author(s)...")
+        print(f"\n Step 2: Getting papers by {len(selected_authors)} author(s)...")
         all_papers = set()
         
         for author_id in selected_authors:
@@ -148,16 +148,16 @@ def solve_question(question: str):
                 all_papers.update(papers)
         
         if not all_papers:
-            print("❌ No papers found by this author")
+            print(" No papers found by this author")
             return []
         
-        print(f"✅ Found {len(all_papers)} papers by author(s)")
+        print(f" Found {len(all_papers)} papers by author(s)")
         
         # Step 3: Get papers that cite these papers
-        print(f"\n🔍 Step 3: Finding papers that cite these papers...")
+        print(f"\n Step 3: Finding papers that cite these papers...")
         citing_papers = set()
         
-        for paper_id in list(all_papers)[:100]:  # Limit to first 100 papers
+        for paper_id in list(all_papers)[:100]: # Limit to first 100 papers
             cite_results = make_request('/get_papers_citing', {
                 'paper_id': str(paper_id)
             })
@@ -166,13 +166,13 @@ def solve_question(question: str):
                 citing_papers.update(citing)
         
         if not citing_papers:
-            print("❌ No papers found that cite this author's work")
+            print(" No papers found that cite this author's work")
             return []
         
-        print(f"✅ Found {len(citing_papers)} papers that cite {author_part}'s work\n")
+        print(f" Found {len(citing_papers)} papers that cite {author_part}'s work\n")
         
         # Step 4: Get metadata for results
-        print(f"📄 Getting metadata for top 10 papers...\n")
+        print(f" Getting metadata for top 10 papers...\n")
         results = []
         for paper_id in list(citing_papers)[:10]:
             metadata = make_request('/get_paper_metadata', {'paper_id': str(paper_id)})
@@ -184,7 +184,7 @@ def solve_question(question: str):
                     'citations': metadata.get('PaperCitationCount', 0),
                     'venue': metadata.get('JournalDisplayName', metadata.get('OriginalVenue', 'N/A'))
                 })
-                print(f"  {len(results)}. {metadata.get('title', 'N/A')}")
+                print(f" {len(results)}. {metadata.get('title', 'N/A')}")
                 year = metadata.get('Year', 'N/A')
                 if year == -1:
                     year = 'N/A'
@@ -192,13 +192,13 @@ def solve_question(question: str):
                 if citations == -1:
                     citations = 0
                 venue = metadata.get('JournalDisplayName', metadata.get('OriginalVenue', 'N/A'))
-                print(f"     Year: {year} | Citations: {citations} | Venue: {venue}")
+                print(f" Year: {year} | Citations: {citations} | Venue: {venue}")
                 print()
         
         return results
     
     else:
-        print("❌ Question pattern not recognized")
+        print(" Question pattern not recognized")
         return []
 
 if __name__ == "__main__":
@@ -210,6 +210,6 @@ if __name__ == "__main__":
     results = solve_question(question)
     
     print(f"\n{'='*70}")
-    print(f"✅ Found {len(results)} papers")
+    print(f" Found {len(results)} papers")
     print(f"{'='*70}\n")
 

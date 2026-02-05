@@ -44,12 +44,12 @@ class InteractiveMAGServer:
         
     def load_system(self) -> bool:
         """Load the entire MAG system once"""
-        logger.info("🚀 Loading MAG Agent System...")
+        logger.info(" Loading MAG Agent System...")
         start_time = time.time()
         
         try:
             # 1. Initialize Neo4j for graph traversal
-            logger.info("🔗 Initializing Neo4j traversal utilities...")
+            logger.info(" Initializing Neo4j traversal utilities...")
             from neo4j import GraphDatabase, basic_auth
             neo4j_uri = os.getenv("NEO4J_URI", "bolt://localhost:7687")
             neo4j_user = os.getenv("NEO4J_USER", "neo4j")
@@ -57,47 +57,47 @@ class InteractiveMAGServer:
             neo4j_db = os.getenv("NEO4J_DATABASE") or None
             driver = GraphDatabase.driver(neo4j_uri, auth=basic_auth(neo4j_user, neo4j_password))
             self.traversal_utils = Neo4jTraversalUtils(driver, database=neo4j_db)
-            logger.info("✅ Neo4j traversal utilities initialized")
+            logger.info(" Neo4j traversal utilities initialized")
             
             # 2. Load minimal graph loader (node type mappings only)
-            logger.info("📊 Loading node type mappings...")
+            logger.info(" Loading node type mappings...")
             self.graph_loader = MAGGraphLoader(self.processed_dir)
             self.graph_loader.load_node_mappings()
             # Skip build_graph() and load_node_attributes() - Neo4j has this data
-            self.graph = None  # Not needed, using Neo4j
-            logger.info("✅ Node type mappings loaded (lightweight)")
+            self.graph = None # Not needed, using Neo4j
+            logger.info(" Node type mappings loaded (lightweight)")
             
             # 3. Load HNSW indices (with Neo4j for metadata)
-            logger.info("🔍 Loading HNSW indices...")
+            logger.info(" Loading HNSW indices...")
             self.hnsw_manager = MAGHNSWManager(self.indices_dir, self.graph_loader, driver)
             self.hnsw_manager.load_all_indices()
-            logger.info("✅ HNSW indices loaded (metadata from Neo4j)")
+            logger.info(" HNSW indices loaded (metadata from Neo4j)")
             
             # 4. Load query orchestrator
-            logger.info("🎯 Loading query orchestrator...")
+            logger.info(" Loading query orchestrator...")
             self.query_orchestrator = MAGQueryOrchestrator(self.hnsw_manager, self.traversal_utils)
-            logger.info("✅ Query orchestrator loaded")
+            logger.info(" Query orchestrator loaded")
             
             # 5. Load MAG agent (will reuse existing Neo4j connection)
-            logger.info("🤖 Loading MAG agent...")
+            logger.info(" Loading MAG agent...")
             self.mag_agent = MAGAgent(self.processed_dir, self.indices_dir)
             self.mag_agent.load_all()
-            logger.info("✅ MAG agent loaded")
+            logger.info(" MAG agent loaded")
             
             # 6. Load flexible agent (will reuse existing Neo4j connection)
-            logger.info("🧠 Loading flexible agent...")
+            logger.info(" Loading flexible agent...")
             self.flexible_agent = FlexibleMAGAgent(self.processed_dir, self.indices_dir)
             self.flexible_agent.load_all()
-            logger.info("✅ Flexible agent loaded")
+            logger.info(" Flexible agent loaded")
             
             self.is_loaded = True
             self.load_time = time.time() - start_time
             
-            logger.info(f"🎉 System loaded successfully in {self.load_time:.2f}s")
+            logger.info(f" System loaded successfully in {self.load_time:.2f}s")
             return True
             
         except Exception as e:
-            logger.error(f"❌ Failed to load system: {e}")
+            logger.error(f" Failed to load system: {e}")
             return False
     
     def get_system_info(self) -> Dict[str, Any]:
@@ -191,7 +191,7 @@ class InteractiveMAGServer:
                 for arg in args_str.split(','):
                     arg = arg.strip()
                     if arg.startswith('"') and arg.endswith('"'):
-                        args.append(arg[1:-1])  # Remove quotes
+                        args.append(arg[1:-1]) # Remove quotes
                     elif arg.isdigit():
                         args.append(int(arg))
                     elif arg.replace('.', '').isdigit():
@@ -296,25 +296,25 @@ class InteractiveMAGServer:
     
     def run_interactive(self):
         """Run interactive terminal interface"""
-        print("🧪 Interactive MAG Agent Server")
+        print(" Interactive MAG Agent Server")
         print("=" * 50)
         
         # Load system
         if not self.load_system():
-            print("❌ Failed to load system. Exiting.")
+            print(" Failed to load system. Exiting.")
             return
         
-        print(f"✅ System loaded in {self.load_time:.2f}s")
+        print(f" System loaded in {self.load_time:.2f}s")
         print("\nAvailable functions:")
         for func in self._get_available_functions():
-            print(f"  - {func}")
+            print(f" - {func}")
         
         print("\nCommands:")
-        print("  - help: Show this help")
-        print("  - info: Show system information")
-        print("  - functions: List available functions")
-        print("  - exit/quit: Exit the server")
-        print("  - Any other input will be treated as a function call")
+        print(" - help: Show this help")
+        print(" - info: Show system information")
+        print(" - functions: List available functions")
+        print(" - exit/quit: Exit the server")
+        print(" - Any other input will be treated as a function call")
         print("\nExample: search_papers_by_title(\"machine learning\", 5)")
         print("=" * 50)
         
@@ -323,34 +323,34 @@ class InteractiveMAGServer:
                 user_input = input("\nMAG> ").strip()
                 
                 if user_input.lower() in ['exit', 'quit', 'q']:
-                    print("👋 Goodbye!")
+                    print(" Goodbye!")
                     break
                 elif user_input.lower() == 'help':
                     print("\nCommands:")
-                    print("  - help: Show this help")
-                    print("  - info: Show system information")
-                    print("  - functions: List available functions")
-                    print("  - exit/quit: Exit the server")
-                    print("  - Any other input will be treated as a function call")
+                    print(" - help: Show this help")
+                    print(" - info: Show system information")
+                    print(" - functions: List available functions")
+                    print(" - exit/quit: Exit the server")
+                    print(" - Any other input will be treated as a function call")
                 elif user_input.lower() == 'info':
                     info = self.get_system_info()
                     print(json.dumps(info, indent=2))
                 elif user_input.lower() == 'functions':
                     for func in self._get_available_functions():
-                        print(f"  - {func}")
+                        print(f" - {func}")
                 elif user_input:
                     # Execute function
                     result = self.execute_function(user_input)
                     if isinstance(result, dict) and 'error' in result:
-                        print(f"❌ {result['error']}")
+                        print(f" {result['error']}")
                     else:
                         print(json.dumps(result, indent=2, default=str))
                         
             except KeyboardInterrupt:
-                print("\n👋 Goodbye!")
+                print("\n Goodbye!")
                 break
             except Exception as e:
-                print(f"❌ Error: {e}")
+                print(f" Error: {e}")
 
 
 def main():

@@ -33,14 +33,14 @@ class FAISSGraphBuilder:
         self.config = config
         self.embedding_service = embedding_service
         self.graph = KnowledgeGraph()
-        self.max_neighbors = max_neighbors  # Maximum neighbors to consider per node
+        self.max_neighbors = max_neighbors # Maximum neighbors to consider per node
         self.use_gpu = use_gpu and faiss.get_num_gpus() > 0
         
         # FAISS index for similarity search
         self.faiss_index = None
-        self.chunk_id_to_index = {}  # Map chunk_id to FAISS index position
-        self.index_to_chunk_id = {}  # Map FAISS index position to chunk_id
-        self.chunks_by_id = {}       # Map chunk_id to chunk object
+        self.chunk_id_to_index = {} # Map chunk_id to FAISS index position
+        self.index_to_chunk_id = {} # Map FAISS index position to chunk_id
+        self.chunks_by_id = {} # Map chunk_id to chunk object
         
         # Initialize similarity tracking
         self.similarity_log_file = "output/chunk_similarities.json"
@@ -94,7 +94,7 @@ class FAISSGraphBuilder:
             if self.use_gpu:
                 try:
                     # Use GPU index for better performance
-                    cpu_index = faiss.IndexFlatIP(dimension)  # Inner Product (cosine similarity with normalized vectors)
+                    cpu_index = faiss.IndexFlatIP(dimension) # Inner Product (cosine similarity with normalized vectors)
                     
                     # Normalize embeddings for cosine similarity
                     faiss.normalize_L2(embeddings_matrix)
@@ -161,7 +161,7 @@ class FAISSGraphBuilder:
             
             neighbors = []
             for sim, idx in zip(similarities[0], indices[0]):
-                if idx == -1:  # Invalid index
+                if idx == -1: # Invalid index
                     continue
                     
                 neighbor_chunk_id = self.index_to_chunk_id[idx]
@@ -173,7 +173,7 @@ class FAISSGraphBuilder:
                 # Convert inner product back to cosine similarity (should be same for normalized vectors)
                 neighbors.append((neighbor_chunk_id, float(sim)))
             
-            return neighbors[:k]  # Return only k neighbors (excluding self)
+            return neighbors[:k] # Return only k neighbors (excluding self)
             
         except Exception as e:
             logger.error(f"Error finding neighbors for chunk {chunk_id}: {e}")
@@ -340,7 +340,7 @@ class FAISSGraphBuilder:
             return self.config.table_similarity_threshold
         elif (type1 == ChunkType.TABLE and type2 == ChunkType.DOCUMENT) or \
              (type1 == ChunkType.DOCUMENT and type2 == ChunkType.TABLE):
-            return self.config.table_similarity_threshold  # Use table threshold for mixed connections
+            return self.config.table_similarity_threshold # Use table threshold for mixed connections
         elif type1 == ChunkType.DOCUMENT and type2 == ChunkType.DOCUMENT:
             return self.config.sentence_similarity_threshold
         else:
@@ -488,7 +488,7 @@ class FAISSGraphBuilder:
                 if len(value_str) > 2 and value_str in text_lower:
                     references.append(f"{key}: {value}")
         
-        return references[:10]  # Limit to top 10 references
+        return references[:10] # Limit to top 10 references
     
     def _find_column_references_in_text(self, table_chunk: TableChunk, text: str) -> List[str]:
         """Find references to table columns in document text"""

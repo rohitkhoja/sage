@@ -66,8 +66,8 @@ class IncrementalFAISSIndexer:
         
         # Initialize index and status
         self.index = None
-        self.chunk_id_to_index = {}  # Maps chunk_id to FAISS index position
-        self.index_to_chunk_id = {}  # Maps FAISS index position to chunk_id
+        self.chunk_id_to_index = {} # Maps chunk_id to FAISS index position
+        self.index_to_chunk_id = {} # Maps FAISS index position to chunk_id
         self.status = self._load_or_create_status()
         
         self._load_existing_index()
@@ -232,13 +232,13 @@ class IncrementalFAISSIndexer:
             embedding = self.index.reconstruct(faiss_index).reshape(1, -1)
             
             # Search for neighbors
-            distances, indices = self.index.search(embedding, k + 1)  # +1 to exclude self
+            distances, indices = self.index.search(embedding, k + 1) # +1 to exclude self
             
             neighbors = []
             for i, (dist, idx) in enumerate(zip(distances[0], indices[0])):
-                if idx != faiss_index and idx in self.index_to_chunk_id:  # Exclude self
+                if idx != faiss_index and idx in self.index_to_chunk_id: # Exclude self
                     neighbor_chunk_id = self.index_to_chunk_id[idx]
-                    similarity = 1.0 - (dist / 2.0)  # Convert L2 distance to similarity
+                    similarity = 1.0 - (dist / 2.0) # Convert L2 distance to similarity
                     
                     neighbors.append({
                         "chunk_id": neighbor_chunk_id,
@@ -246,7 +246,7 @@ class IncrementalFAISSIndexer:
                         "distance": float(dist)
                     })
             
-            results[chunk_id] = neighbors[:k]  # Limit to k neighbors
+            results[chunk_id] = neighbors[:k] # Limit to k neighbors
         
         return results
     
@@ -397,7 +397,7 @@ def main():
         logger.info("Monitoring for new chunks... (Press Ctrl+C to stop)")
         
         while True:
-            time.sleep(60)  # Check every minute
+            time.sleep(60) # Check every minute
             stats = indexer.get_index_stats()
             logger.info(f"Index stats: {stats['total_vectors']} vectors, "
                        f"{stats['processed_chunks']} chunks processed")

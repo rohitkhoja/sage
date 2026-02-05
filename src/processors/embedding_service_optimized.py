@@ -65,7 +65,7 @@ class OptimizedEmbeddingService:
             raise RuntimeError("Embedding model not loaded")
         
         num_texts = len(texts)
-        logger.info(f"🚀 BULK PROCESSING: {num_texts:,} texts with {self.num_gpus} GPUs")
+        logger.info(f" BULK PROCESSING: {num_texts:,} texts with {self.num_gpus} GPUs")
         
         # Calculate optimal batch size based on GPU memory and number of GPUs
         optimal_batch_size = self._calculate_optimal_batch_size(num_texts)
@@ -94,25 +94,25 @@ class OptimizedEmbeddingService:
         # TITAN RTX has ~22GB usable memory, much more than RTX 2080 Ti
         # Conservative batching to avoid OOM (GPU memory limited)
         
-        if num_texts > 2000000:  # Massive datasets
+        if num_texts > 2000000: # Massive datasets
             optimal_size = 5000
-        elif num_texts > 1000000:  # Very large datasets
+        elif num_texts > 1000000: # Very large datasets
             optimal_size = 5000
-        elif num_texts > 500000:  # Large datasets  
+        elif num_texts > 500000: # Large datasets 
             optimal_size = 5000
-        elif num_texts > 100000:  # Medium datasets
+        elif num_texts > 100000: # Medium datasets
             optimal_size = 5000
-        elif num_texts > 10000:  # Small-medium datasets
+        elif num_texts > 10000: # Small-medium datasets
             optimal_size = 2000
-        else:  # Small datasets
+        else: # Small datasets
             optimal_size = min(1000, num_texts)
         
-        logger.info(f"🚀 CONSERVATIVE BATCH: {optimal_size:,} (for {self.num_gpus} GPUs, {num_texts:,} texts)")
+        logger.info(f" CONSERVATIVE BATCH: {optimal_size:,} (for {self.num_gpus} GPUs, {num_texts:,} texts)")
         return optimal_size
     
     def _generate_embeddings_massive_batch(self, texts: List[str]) -> List[List[float]]:
         """Generate embeddings for all texts in one massive batch"""
-        logger.info(f"🔥 MASSIVE BATCH: Processing {len(texts):,} texts at once")
+        logger.info(f" MASSIVE BATCH: Processing {len(texts):,} texts at once")
         
         # Get the actual model (unwrap DataParallel if needed)
         model_to_use = self.model.module if isinstance(self.model, nn.DataParallel) else self.model
@@ -130,13 +130,13 @@ class OptimizedEmbeddingService:
             show_progress_bar=True,
             device=self.device,
             batch_size=internal_batch_size,
-            normalize_embeddings=True  # Pre-normalize for cosine similarity
+            normalize_embeddings=True # Pre-normalize for cosine similarity
         )
         
         end_time.record()
         torch.cuda.synchronize()
         
-        processing_time = start_time.elapsed_time(end_time) / 1000.0  # Convert to seconds
+        processing_time = start_time.elapsed_time(end_time) / 1000.0 # Convert to seconds
         
         # Convert to CPU and then to list
         if embeddings.is_cuda:
@@ -145,13 +145,13 @@ class OptimizedEmbeddingService:
         embeddings_list = embeddings.numpy().tolist()
         
         texts_per_second = len(texts) / processing_time
-        logger.info(f"✅ MASSIVE BATCH COMPLETE: {len(embeddings_list):,} embeddings in {processing_time:.2f}s ({texts_per_second:.0f} texts/sec)")
+        logger.info(f" MASSIVE BATCH COMPLETE: {len(embeddings_list):,} embeddings in {processing_time:.2f}s ({texts_per_second:.0f} texts/sec)")
         
         return embeddings_list
     
     def _generate_embeddings_large_batches(self, texts: List[str], batch_size: int) -> List[List[float]]:
         """Generate embeddings in large optimized batches with OOM recovery"""
-        logger.info(f"🔥 LARGE BATCH PROCESSING: {len(texts):,} texts in batches of {batch_size:,}")
+        logger.info(f" LARGE BATCH PROCESSING: {len(texts):,} texts in batches of {batch_size:,}")
         
         all_embeddings = []
         total_batches = math.ceil(len(texts) / batch_size)
@@ -198,7 +198,7 @@ class OptimizedEmbeddingService:
                 self._clear_gpu_cache()
                 
             except torch.cuda.OutOfMemoryError as e:
-                logger.warning(f"⚠️  GPU OOM at batch {batch_num}, reducing batch size...")
+                logger.warning(f" GPU OOM at batch {batch_num}, reducing batch size...")
                 
                 # Clear GPU memory
                 self._clear_gpu_cache()
@@ -207,21 +207,21 @@ class OptimizedEmbeddingService:
                 current_batch_size = max(current_batch_size // 2, 1024)
                 internal_batch_size = max(internal_batch_size // 2, 256)
                 
-                logger.info(f"🔄 Retrying with smaller batch: {current_batch_size}, internal: {internal_batch_size}")
+                logger.info(f" Retrying with smaller batch: {current_batch_size}, internal: {internal_batch_size}")
                 
                 # Don't increment i, retry with smaller batch
                 if current_batch_size < 1024:
-                    logger.error(f"❌ Batch size too small ({current_batch_size}), cannot process")
+                    logger.error(f" Batch size too small ({current_batch_size}), cannot process")
                     raise RuntimeError(f"Cannot process batch due to GPU memory constraints: {e}")
                     
             except Exception as e:
-                logger.error(f"❌ Error processing batch {batch_num}: {e}")
+                logger.error(f" Error processing batch {batch_num}: {e}")
                 raise
         
         total_time = time.time() - total_start_time
         texts_per_second = len(texts) / total_time if total_time > 0 else 0
         
-        logger.info(f"✅ LARGE BATCH COMPLETE: {len(all_embeddings):,} embeddings in {total_time:.2f}s ({texts_per_second:.0f} texts/sec)")
+        logger.info(f" LARGE BATCH COMPLETE: {len(all_embeddings):,} embeddings in {total_time:.2f}s ({texts_per_second:.0f} texts/sec)")
         return all_embeddings
     
     def generate_embeddings(self, texts: List[str], batch_size: int = None) -> List[List[float]]:
@@ -246,7 +246,7 @@ class OptimizedEmbeddingService:
                 return np.array([])
             
             num_embeddings = len(embeddings)
-            logger.info(f"🔥 Computing similarity matrix for {num_embeddings:,} embeddings")
+            logger.info(f" Computing similarity matrix for {num_embeddings:,} embeddings")
             
             # Convert to tensor
             embeddings_tensor = torch.tensor(embeddings, device=self.device, dtype=torch.float32)
@@ -267,7 +267,7 @@ class OptimizedEmbeddingService:
             if similarity_matrix.is_cuda:
                 similarity_matrix = similarity_matrix.cpu()
             
-            logger.info(f"✅ Computed similarity matrix of shape {similarity_matrix.shape}")
+            logger.info(f" Computed similarity matrix of shape {similarity_matrix.shape}")
             return similarity_matrix.numpy()
             
         except Exception as e:
@@ -325,7 +325,7 @@ class OptimizedEmbeddingService:
         Returns:
             List of lists containing indices of top-k similar items for each query
         """
-        logger.info(f"🔥 Vectorized top-k search: {len(query_embeddings):,} queries x {len(all_embeddings):,} targets")
+        logger.info(f" Vectorized top-k search: {len(query_embeddings):,} queries x {len(all_embeddings):,} targets")
         
         # Convert to tensors
         query_tensor = torch.tensor(query_embeddings, device=self.device, dtype=torch.float32)
@@ -346,7 +346,7 @@ class OptimizedEmbeddingService:
             top_k_indices = top_k_indices.cpu()
         
         result = top_k_indices.numpy().tolist()
-        logger.info(f"✅ Completed vectorized top-k search")
+        logger.info(f" Completed vectorized top-k search")
         
         return result
     

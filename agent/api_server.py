@@ -36,7 +36,7 @@ class YearRangeRequest(BaseModel):
 
 class MetadataRequest(BaseModel):
     object_id: int
-    object_type: str  # 'paper', 'author', 'institution', 'field_of_study'
+    object_type: str # 'paper', 'author', 'institution', 'field_of_study'
 
 class Response(BaseModel):
     success: bool
@@ -78,7 +78,7 @@ async def startup_event():
     """Initialize the MAG Agent on startup"""
     global agent
     
-    logger.info("🚀 Starting MAG Agent API Server...")
+    logger.info(" Starting MAG Agent API Server...")
     
     try:
         agent = MAGAgent(
@@ -86,14 +86,14 @@ async def startup_event():
             indices_dir="/shared/khoja/CogComp/output/mag_hnsw_indices"
         )
         
-        logger.info("📊 Loading MAG Agent components...")
+        logger.info(" Loading MAG Agent components...")
         if agent.load_all():
-            logger.info("✅ MAG Agent loaded successfully!")
+            logger.info(" MAG Agent loaded successfully!")
         else:
-            logger.error("❌ Failed to load MAG Agent")
+            logger.error(" Failed to load MAG Agent")
             
     except Exception as e:
-        logger.error(f"❌ Startup failed: {e}")
+        logger.error(f" Startup failed: {e}")
         import traceback
         traceback.print_exc()
 
@@ -484,5 +484,5 @@ async def get_query_evidence(question_id: str):
 if __name__ == "__main__":
     import uvicorn
     
-    logger.info("🚀 Starting MAG Agent API Server...")
+    logger.info(" Starting MAG Agent API Server...")
     uvicorn.run(app, host="0.0.0.0", port=8000, log_level="info")

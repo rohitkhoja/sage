@@ -26,26 +26,26 @@ def load_system():
     if mag_agent is not None:
         return True
     
-    logger.info("🚀 Loading MAG Agent System...")
+    logger.info(" Loading MAG Agent System...")
     
     try:
         # Load MAG Agent
         mag_agent = MAGAgent("/shared/khoja/CogComp/datasets/MAG/processed", 
                             "/shared/khoja/CogComp/output/mag_hnsw_indices")
         mag_agent.load_all()
-        logger.info("✅ MAG Agent loaded")
+        logger.info(" MAG Agent loaded")
         
         # Load Flexible Agent
         flex_agent = FlexibleMAGAgent("/shared/khoja/CogComp/datasets/MAG/processed", 
                                     "/shared/khoja/CogComp/output/mag_hnsw_indices")
         flex_agent.load_all()
-        logger.info("✅ Flexible Agent loaded")
+        logger.info(" Flexible Agent loaded")
         
-        logger.info("🎉 System loaded successfully!")
+        logger.info(" System loaded successfully!")
         return True
         
     except Exception as e:
-        logger.error(f"❌ Failed to load system: {e}")
+        logger.error(f" Failed to load system: {e}")
         return False
 
 def search_papers_by_title(query, top_k=10):
@@ -132,14 +132,14 @@ def help_functions():
         "get_author_metadata author_id"
     ]
     
-    print("🎯 Available Functions:")
+    print(" Available Functions:")
     print("=" * 40)
     for func in functions:
-        print(f"  python mag_terminal.py {func}")
-    print("\n💡 Examples:")
-    print("  python mag_terminal.py search_papers_by_title 'machine learning' 5")
-    print("  python mag_terminal.py get_papers_by_year_range 2010 2020")
-    print("  python mag_terminal.py solve_query 'papers about AI' my_session")
+        print(f" python mag_terminal.py {func}")
+    print("\n Examples:")
+    print(" python mag_terminal.py search_papers_by_title 'machine learning' 5")
+    print(" python mag_terminal.py get_papers_by_year_range 2010 2020")
+    print(" python mag_terminal.py solve_query 'papers about AI' my_session")
 
 def main():
     """Main function"""
@@ -167,7 +167,7 @@ def main():
     }
     
     if function_name not in functions:
-        print(f"❌ Unknown function: {function_name}")
+        print(f" Unknown function: {function_name}")
         help_functions()
         return 1
     
@@ -176,33 +176,33 @@ def main():
         result = functions[function_name](*args)
         
         if result is None:
-            print("❌ Function failed")
+            print(" Function failed")
             return 1
         
         # Print result
         if isinstance(result, list):
-            print(f"✅ Found {len(result)} results")
+            print(f" Found {len(result)} results")
             if len(result) <= 5:
                 for i, item in enumerate(result):
-                    print(f"  {i+1}. {item}")
+                    print(f" {i+1}. {item}")
             else:
                 for i, item in enumerate(result[:3]):
-                    print(f"  {i+1}. {item}")
-                print(f"  ... and {len(result) - 3} more")
+                    print(f" {i+1}. {item}")
+                print(f" ... and {len(result) - 3} more")
         elif isinstance(result, dict):
-            print("✅ Result:")
+            print(" Result:")
             for key, value in result.items():
                 if isinstance(value, list) and len(value) > 3:
-                    print(f"  {key}: {len(value)} items")
+                    print(f" {key}: {len(value)} items")
                 else:
-                    print(f"  {key}: {value}")
+                    print(f" {key}: {value}")
         else:
-            print(f"✅ {result}")
+            print(f" {result}")
         
         return 0
         
     except Exception as e:
-        print(f"❌ Error: {e}")
+        print(f" Error: {e}")
         return 1
 
 if __name__ == "__main__":

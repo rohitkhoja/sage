@@ -32,18 +32,18 @@ def create_optimized_dashboard(kg: 'KnowledgeGraph', port: int = 8050) -> dash.D
     knowledge_graph = kg
     
     # Generate minimal visualization data on startup (GPU-accelerated UMAP)
-    print("🚀 Initializing dashboard...")
-    print(f"📊 Graph size: {len(knowledge_graph.nodes)} nodes, {len(knowledge_graph.edges)} edges")
-    print("🧠 Generating minimal visualization data with GPU-accelerated UMAP...")
-    print("⏳ This may take 30-60 seconds for large graphs...")
+    print(" Initializing dashboard...")
+    print(f" Graph size: {len(knowledge_graph.nodes)} nodes, {len(knowledge_graph.edges)} edges")
+    print(" Generating minimal visualization data with GPU-accelerated UMAP...")
+    print(" This may take 30-60 seconds for large graphs...")
     
     minimal_viz_data = knowledge_graph.generate_minimal_visualization_data(
         layout="umap",
         use_3d=False,
         max_nodes=10000
     )
-    print(f"✅ Visualization data ready: {len(minimal_viz_data['nodes'])} nodes, {len(minimal_viz_data['edges'])} edges")
-    print("🎨 Creating Dash application...")
+    print(f" Visualization data ready: {len(minimal_viz_data['nodes'])} nodes, {len(minimal_viz_data['edges'])} edges")
+    print(" Creating Dash application...")
     
     # Create app with enhanced configuration
     app = dash.Dash(
@@ -233,10 +233,10 @@ def create_optimized_dashboard(kg: 'KnowledgeGraph', port: int = 8050) -> dash.D
                             dcc.Dropdown(
                                 id='layout-dropdown',
                                 options=[
-                                    {'label': '🧠 UMAP (GPU Accelerated)', 'value': 'umap'},
-                                    {'label': '🎯 Similarity Clustering', 'value': 'similarity'},
-                                    {'label': '🌸 Spring Layout', 'value': 'spring'},
-                                    {'label': '🔄 Circular Layout', 'value': 'circular'}
+                                    {'label': ' UMAP (GPU Accelerated)', 'value': 'umap'},
+                                    {'label': ' Similarity Clustering', 'value': 'similarity'},
+                                    {'label': ' Spring Layout', 'value': 'spring'},
+                                    {'label': ' Circular Layout', 'value': 'circular'}
                                 ],
                                 value='umap',
                                 className='form-select mb-3'
@@ -326,13 +326,13 @@ def create_optimized_dashboard(kg: 'KnowledgeGraph', port: int = 8050) -> dash.D
         ctx = callback_context
         if ctx.triggered and 'regenerate-button' in ctx.triggered[0]['prop_id']:
             # Regenerate layout
-            print(f"🔄 Regenerating {layout} layout...")
+            print(f" Regenerating {layout} layout...")
             minimal_viz_data = knowledge_graph.generate_minimal_visualization_data(
                 layout=layout,
                 use_3d=False,
                 max_nodes=10000
             )
-            print(f"✅ Regenerated: {len(minimal_viz_data['nodes'])} nodes")
+            print(f" Regenerated: {len(minimal_viz_data['nodes'])} nodes")
         
         # Create minimal figure
         fig = create_minimal_graph_figure(minimal_viz_data)
@@ -416,9 +416,9 @@ def create_optimized_dashboard(kg: 'KnowledgeGraph', port: int = 8050) -> dash.D
         fig = create_minimal_graph_figure(viz_data, highlight_search=search_value.lower())
         return fig
     
-    print("✅ Dashboard application configured successfully")
-    print("🌐 Ready to launch dashboard server...")
-    print(f"📊 Dashboard ready with {len(minimal_viz_data['nodes'])} nodes and {len(minimal_viz_data['edges'])} edges")
+    print(" Dashboard application configured successfully")
+    print(" Ready to launch dashboard server...")
+    print(f" Dashboard ready with {len(minimal_viz_data['nodes'])} nodes and {len(minimal_viz_data['edges'])} edges")
     return app
 
 
@@ -459,9 +459,9 @@ def create_minimal_graph_figure(viz_data, highlight_search=None):
     node_colors = []
     for node in nodes:
         if node['type'] == 'document':
-            node_colors.append('#3498db')  # Blue for documents
+            node_colors.append('#3498db') # Blue for documents
         else:
-            node_colors.append('#e74c3c')  # Red for tables
+            node_colors.append('#e74c3c') # Red for tables
     
     # Highlight search results
     if highlight_search:
@@ -470,7 +470,7 @@ def create_minimal_graph_figure(viz_data, highlight_search=None):
             if (highlight_search in node['id'].lower() or 
                 highlight_search in node['name'].lower() or
                 highlight_search in node['source'].lower()):
-                highlighted_colors.append('#f1c40f')  # Yellow for matches
+                highlighted_colors.append('#f1c40f') # Yellow for matches
             else:
                 highlighted_colors.append(node_colors[i])
         node_colors = highlighted_colors
@@ -616,22 +616,22 @@ def run_optimized_dashboard(knowledge_graph: 'KnowledgeGraph', port: int = 8050,
         port: Port to run on
         debug: Whether to run in debug mode
     """
-    print(f"🔧 Creating dashboard application...")
+    print(f" Creating dashboard application...")
     app = create_optimized_dashboard(knowledge_graph, port)
     
-    print(f"🚀 Starting High-Performance RAG Dashboard Server")
-    print(f"📊 Dashboard URL: http://127.0.0.1:{port}")
-    print(f"⚡ GPU-accelerated UMAP visualization ready")
-    print(f"🔍 Click any node to see full details")
-    print(f"🌐 Starting Flask server on port {port}...")
+    print(f" Starting High-Performance RAG Dashboard Server")
+    print(f" Dashboard URL: http://127.0.0.1:{port}")
+    print(f" GPU-accelerated UMAP visualization ready")
+    print(f" Click any node to see full details")
+    print(f" Starting Flask server on port {port}...")
     
     try:
-        print(f"🌐 Starting Flask server on http://127.0.0.1:{port}")
-        print("🖱️  Click the URL above to open the dashboard")
-        print("⏹️  Press Ctrl+C to stop the server")
+        print(f" Starting Flask server on http://127.0.0.1:{port}")
+        print(" Click the URL above to open the dashboard")
+        print(" Press Ctrl+C to stop the server")
         app.run(debug=debug, port=port, host='127.0.0.1')
     except Exception as e:
-        print(f"❌ Error starting dashboard server: {e}")
+        print(f" Error starting dashboard server: {e}")
         import traceback
         traceback.print_exc()
         raise

@@ -96,7 +96,7 @@ def main():
         rows = list(csv.DictReader(f))
 
     per_rows: List[Dict[str, Any]] = []
-    flagged_rows: List[Dict[str, Any]] = []  # agent < 10 and recall@20 == 0
+    flagged_rows: List[Dict[str, Any]] = [] # agent < 10 and recall@20 == 0
     hit1s, hit5s, rec20s, mrrs, mrr20s = [], [], [], [], []
 
     for row in rows:

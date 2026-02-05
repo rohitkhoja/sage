@@ -22,38 +22,38 @@ def load_system():
     global mag_agent, flex_agent
     
     if mag_agent is not None:
-        logger.info("✅ System already loaded")
+        logger.info(" System already loaded")
         return True
     
-    logger.info("🚀 Loading MAG Agent System...")
+    logger.info(" Loading MAG Agent System...")
     
     try:
         # Load MAG Agent
         mag_agent = MAGAgent("/shared/khoja/CogComp/datasets/MAG/processed", 
                             "/shared/khoja/CogComp/output/mag_hnsw_indices")
         mag_agent.load_all()
-        logger.info("✅ MAG Agent loaded")
+        logger.info(" MAG Agent loaded")
         
         # Load Flexible Agent
         flex_agent = FlexibleMAGAgent("/shared/khoja/CogComp/datasets/MAG/processed", 
                                     "/shared/khoja/CogComp/output/mag_hnsw_indices")
         flex_agent.load_all()
-        logger.info("✅ Flexible Agent loaded")
+        logger.info(" Flexible Agent loaded")
         
-        logger.info("🎉 System loaded successfully!")
+        logger.info(" System loaded successfully!")
         return True
         
     except Exception as e:
-        logger.error(f"❌ Failed to load system: {e}")
+        logger.error(f" Failed to load system: {e}")
         return False
 
 # Load system on import
 if load_system():
-    logger.info("🎯 System ready! You can now call functions:")
-    logger.info("  - mag_agent.search_papers_by_title('query', 5)")
-    logger.info("  - mag_agent.search_authors_by_name('name', 3)")
-    logger.info("  - mag_agent.get_papers_by_year_range(2010, 2020)")
-    logger.info("  - flex_agent.solve_query('query', 'session')")
-    logger.info("  - And many more...")
+    logger.info(" System ready! You can now call functions:")
+    logger.info(" - mag_agent.search_papers_by_title('query', 5)")
+    logger.info(" - mag_agent.search_authors_by_name('name', 3)")
+    logger.info(" - mag_agent.get_papers_by_year_range(2010, 2020)")
+    logger.info(" - flex_agent.solve_query('query', 'session')")
+    logger.info(" - And many more...")
 else:
-    logger.error("❌ System failed to load")
+    logger.error(" System failed to load")

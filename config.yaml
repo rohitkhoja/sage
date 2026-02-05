@@ -47,9 +47,6 @@ pipeline:
 # Model Configuration
 models:
   embedding_model: "sentence-transformers/all-MiniLM-L6-v2"
-  # Alternative models:
-  # "sentence-transformers/all-mpnet-base-v2"  # Higher quality, slower
-  # "sentence-transformers/paraphrase-MiniLM-L3-v2"  # Faster, smaller
   
 # Logging Configuration
 logging:

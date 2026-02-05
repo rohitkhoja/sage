@@ -30,10 +30,10 @@ def load_system():
     global mag_agent, flex_agent, server_start_time
     
     if mag_agent is not None:
-        logger.info("✅ System already loaded")
+        logger.info(" System already loaded")
         return True
     
-    logger.info("🚀 Loading MAG Agent System...")
+    logger.info(" Loading MAG Agent System...")
     server_start_time = time.time()
     
     try:
@@ -41,19 +41,19 @@ def load_system():
         mag_agent = MAGAgent("/shared/khoja/CogComp/datasets/MAG/processed", 
                             "/shared/khoja/CogComp/output/mag_hnsw_indices")
         mag_agent.load_all()
-        logger.info("✅ MAG Agent loaded")
+        logger.info(" MAG Agent loaded")
         
         # Load Flexible Agent
         flex_agent = FlexibleMAGAgent("/shared/khoja/CogComp/datasets/MAG/processed", 
                                     "/shared/khoja/CogComp/output/mag_hnsw_indices")
         flex_agent.load_all()
-        logger.info("✅ Flexible Agent loaded")
+        logger.info(" Flexible Agent loaded")
         
-        logger.info("🎉 System loaded successfully!")
+        logger.info(" System loaded successfully!")
         return True
         
     except Exception as e:
-        logger.error(f"❌ Failed to load system: {e}")
+        logger.error(f" Failed to load system: {e}")
         return False
 
 class MAGServerHandler(BaseHTTPRequestHandler):
@@ -283,7 +283,7 @@ class MAGServerHandler(BaseHTTPRequestHandler):
         <html>
         <head><title>MAG Agent Server</title></head>
         <body>
-        <h1>🎯 MAG Agent Server</h1>
+        <h1> MAG Agent Server</h1>
         <p>System Status: <strong>Running</strong></p>
         
         <h2>Available Functions:</h2>
@@ -304,7 +304,7 @@ class MAGServerHandler(BaseHTTPRequestHandler):
         <li><strong>GET /status</strong> - Check system status</li>
         </ul>
         
-        <h3>📁 File Input Support:</h3>
+        <h3> File Input Support:</h3>
         <p>Graph traversal functions now support file inputs for multiple IDs:</p>
         <ul>
         <li><strong>Single ID:</strong> <code>?paper_id=12345</code></li>
@@ -332,36 +332,36 @@ def start_server(port=8080):
     
     # Load system first
     if not load_system():
-        logger.error("❌ Failed to load system")
+        logger.error(" Failed to load system")
         return False
     
     try:
         server = HTTPServer(('localhost', port), MAGServerHandler)
-        logger.info(f"🚀 MAG Agent Server started on port {port}")
-        logger.info(f"📡 Access at: http://localhost:{port}")
-        logger.info("🔧 Available functions:")
-        logger.info("  - /search_papers_by_title?query=...")
-        logger.info("  - /search_authors_by_name?query=...")
-        logger.info("  - /get_papers_by_year_range?start_year=...&end_year=...")
-        logger.info("  - /query_natural_language?query=...")
-        logger.info("  - /status")
+        logger.info(f" MAG Agent Server started on port {port}")
+        logger.info(f" Access at: http://localhost:{port}")
+        logger.info(" Available functions:")
+        logger.info(" - /search_papers_by_title?query=...")
+        logger.info(" - /search_authors_by_name?query=...")
+        logger.info(" - /get_papers_by_year_range?start_year=...&end_year=...")
+        logger.info(" - /query_natural_language?query=...")
+        logger.info(" - /status")
         logger.info("")
-        logger.info("📝 INTERMEDIATE RESULT STORAGE ENABLED:")
-        logger.info("  - All mag_call results are automatically stored as step1_, step2_, etc.")
-        logger.info("  - Use get_intersection to find common results between steps")
-        logger.info("  - Use save_results_to_md to save all results to markdown")
-        logger.info("  - See agent_prompt_template.md for detailed usage guide")
-        logger.info("\n💡 Example: curl 'http://localhost:8080/search_papers_by_title?query=machine learning'")
+        logger.info(" INTERMEDIATE RESULT STORAGE ENABLED:")
+        logger.info(" - All mag_call results are automatically stored as step1_, step2_, etc.")
+        logger.info(" - Use get_intersection to find common results between steps")
+        logger.info(" - Use save_results_to_md to save all results to markdown")
+        logger.info(" - See agent_prompt_template.md for detailed usage guide")
+        logger.info("\n Example: curl 'http://localhost:8080/search_papers_by_title?query=machine learning'")
         logger.info("Press Ctrl+C to stop the server")
         
         server.serve_forever()
         
     except KeyboardInterrupt:
-        logger.info("👋 Shutting down server...")
+        logger.info(" Shutting down server...")
         server.shutdown()
         return True
     except Exception as e:
-        logger.error(f"❌ Server error: {e}")
+        logger.error(f" Server error: {e}")
         return False
 
 def main():

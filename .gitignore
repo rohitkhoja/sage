@@ -131,6 +131,7 @@ celerybeat.pid
 
 # Environments
 .env
+!.env.example
 .venv
 env/
 venv/
@@ -320,6 +321,7 @@ tests/
 
 # Markdown files
 *.md
+!README.md
 
 # Data files
 datasets/
@@ -349,6 +351,7 @@ nohup.out
 
 # Text files
 *.txt
+!requirements.txt
 
 # Archive / compressed files
 *.gz

@@ -74,10 +74,10 @@ def store_step_result(step_name, result, query_params=None):
                      'get_papers_cited_by', 'get_papers_citing', 'get_papers_by_author', 'get_authors_of_paper']):
         file_path = save_results_to_file(step_key, result)
         data["intermediate_results"][step_key]["file_path"] = file_path
-        print(f"📁 Auto-saved {len(result)} results to file: {file_path}")
+        print(f" Auto-saved {len(result)} results to file: {file_path}")
     
     save_storage(data)
-    print(f"📝 Stored {step_key}: {data['intermediate_results'][step_key]['result_count']} results")
+    print(f" Stored {step_key}: {data['intermediate_results'][step_key]['result_count']} results")
     return result
 
 def get_intersection(step1_key, step2_key):
@@ -86,7 +86,7 @@ def get_intersection(step1_key, step2_key):
     intermediate_results = data["intermediate_results"]
     
     if step1_key not in intermediate_results or step2_key not in intermediate_results:
-        print(f"❌ Steps {step1_key} or {step2_key} not found")
+        print(f" Steps {step1_key} or {step2_key} not found")
         print(f"Available steps: {list(intermediate_results.keys())}")
         return []
     
@@ -112,7 +112,7 @@ def get_intersection(step1_key, step2_key):
                 step2_indices.add(str(item))
     
     intersection = list(step1_indices.intersection(step2_indices))
-    print(f"🔍 Intersection of {step1_key} and {step2_key}: {len(intersection)} items")
+    print(f" Intersection of {step1_key} and {step2_key}: {len(intersection)} items")
     return intersection
 
 def save_results_to_md(question_text=None):
@@ -122,7 +122,7 @@ def save_results_to_md(question_text=None):
     current_question = data["current_question"]
     
     if not intermediate_results:
-        print("❌ No results to save")
+        print(" No results to save")
         return
     
     # Create output directory
@@ -160,14 +160,14 @@ def save_results_to_md(question_text=None):
     with open(md_file, 'w') as f:
         f.write(md_content)
     
-    print(f"💾 Results saved to: {md_file}")
+    print(f" Results saved to: {md_file}")
     return str(md_file)
 
 def reset_session():
     """Reset the session for a new question"""
     data = {"intermediate_results": {}, "current_question": None, "step_counter": 0}
     save_storage(data)
-    print("🔄 Session reset for new question")
+    print(" Session reset for new question")
 
 def get_step_file(step_key):
     """Get the file path for a step if it exists"""
@@ -175,16 +175,16 @@ def get_step_file(step_key):
     intermediate_results = data["intermediate_results"]
     
     if step_key not in intermediate_results:
-        print(f"❌ Step {step_key} not found")
+        print(f" Step {step_key} not found")
         print(f"Available steps: {list(intermediate_results.keys())}")
         return None
     
     step_data = intermediate_results[step_key]
     if "file_path" in step_data:
-        print(f"📁 File path for {step_key}: {step_data['file_path']}")
+        print(f" File path for {step_key}: {step_data['file_path']}")
         return step_data["file_path"]
     else:
-        print(f"❌ No file saved for {step_key}")
+        print(f" No file saved for {step_key}")
         return None
 
 def search_papers_by_title(query, top_k=10):
@@ -290,21 +290,21 @@ def help_functions():
         "status"
     ]
     
-    print("🎯 Available Functions:")
+    print(" Available Functions:")
     print("=" * 40)
     for func in functions:
-        print(f"  python mag_call.py {func}")
-    print("\n💡 Examples:")
-    print("  python mag_call.py search_papers_by_title 'machine learning' 5")
-    print("  python mag_call.py get_papers_by_year_range 2010 2020")
-    print("  python mag_call.py get_step_file step1_search_papers_by_title")
-    print("  python mag_call.py status")
+        print(f" python mag_call.py {func}")
+    print("\n Examples:")
+    print(" python mag_call.py search_papers_by_title 'machine learning' 5")
+    print(" python mag_call.py get_papers_by_year_range 2010 2020")
+    print(" python mag_call.py get_step_file step1_search_papers_by_title")
+    print(" python mag_call.py status")
     
-    print("\n📁 File Input Support:")
-    print("  - HNSW searches with >5 results are auto-saved to files")
-    print("  - Use get_step_file to get file path for a step")
-    print("  - Pass file path to graph traversal functions for multiple IDs")
-    print("  - Example: get_authors_of_paper '/path/to/step1_search_papers_by_title.json'")
+    print("\n File Input Support:")
+    print(" - HNSW searches with >5 results are auto-saved to files")
+    print(" - Use get_step_file to get file path for a step")
+    print(" - Pass file path to graph traversal functions for multiple IDs")
+    print(" - Example: get_authors_of_paper '/path/to/step1_search_papers_by_title.json'")
 
 def main():
     """Main function"""
@@ -340,7 +340,7 @@ def main():
     }
     
     if function_name not in functions:
-        print(f"❌ Unknown function: {function_name}")
+        print(f" Unknown function: {function_name}")
         help_functions()
         return 1
     
@@ -349,33 +349,33 @@ def main():
         result = functions[function_name](*args)
         
         if isinstance(result, dict) and 'error' in result:
-            print(f"❌ {result['error']}")
+            print(f" {result['error']}")
             return 1
         
         # Print result
         if isinstance(result, list):
-            print(f"✅ Found {len(result)} results")
+            print(f" Found {len(result)} results")
             if len(result) <= 5:
                 for i, item in enumerate(result):
-                    print(f"  {i+1}. {item}")
+                    print(f" {i+1}. {item}")
             else:
                 for i, item in enumerate(result[:3]):
-                    print(f"  {i+1}. {item}")
-                print(f"  ... and {len(result) - 3} more")
+                    print(f" {i+1}. {item}")
+                print(f" ... and {len(result) - 3} more")
         elif isinstance(result, dict):
-            print("✅ Result:")
+            print(" Result:")
             for key, value in result.items():
                 if isinstance(value, list) and len(value) > 3:
-                    print(f"  {key}: {len(value)} items")
+                    print(f" {key}: {len(value)} items")
                 else:
-                    print(f"  {key}: {value}")
+                    print(f" {key}: {value}")
         else:
-            print(f"✅ {result}")
+            print(f" {result}")
         
         return 0
         
     except Exception as e:
-        print(f"❌ Error: {e}")
+        print(f" Error: {e}")
         return 1
 
 if __name__ == "__main__":

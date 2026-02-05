@@ -45,51 +45,51 @@ class MAGAgent:
         """Load all components (graph, HNSW indices, orchestrator)"""
         start_time = time.time()
         
-        logger.info("🚀 Loading MAG Agent components...")
+        logger.info(" Loading MAG Agent components...")
         
         try:
             # Initialize Neo4j traversal utilities first (for graph traversal)
-            logger.info("🔗 Initializing Neo4j traversal utilities...")
+            logger.info(" Initializing Neo4j traversal utilities...")
             import os
             from neo4j import GraphDatabase, basic_auth
             neo4j_uri = os.getenv("NEO4J_URI", "bolt://localhost:7687")
             neo4j_user = os.getenv("NEO4J_USER", "neo4j")
-            neo4j_password = os.getenv("NEO4J_PASSWORD", "neo4j123")  # Updated to match Neo4j password
+            neo4j_password = os.getenv("NEO4J_PASSWORD", "neo4j123") # Updated to match Neo4j password
             neo4j_db = os.getenv("NEO4J_DATABASE") or None
             driver = GraphDatabase.driver(neo4j_uri, auth=basic_auth(neo4j_user, neo4j_password))
             self.traversal_utils = Neo4jTraversalUtils(driver, database=neo4j_db)
-            logger.info("✅ Neo4j traversal utilities initialized")
+            logger.info(" Neo4j traversal utilities initialized")
             
             # Load minimal graph loader for HNSW (only node type mappings, not full attributes)
-            logger.info("📊 Loading node type mappings for HNSW indices...")
+            logger.info(" Loading node type mappings for HNSW indices...")
             self.graph_loader = MAGGraphLoader(self.processed_dir)
             # Only load node type mappings (lightweight), skip full attributes and graph building
             # Neo4j has all node attributes and handles graph traversal
             self.graph_loader.load_node_mappings()
             # Skip load_node_attributes() - it loads 1.8M nodes into memory
             # If metadata is needed, query Neo4j instead
-            logger.info("✅ Node type mappings loaded (lightweight)")
+            logger.info(" Node type mappings loaded (lightweight)")
             
             # Load HNSW indices (with Neo4j for metadata)
-            logger.info("🔍 Loading HNSW indices...")
+            logger.info(" Loading HNSW indices...")
             self.hnsw_manager = MAGHNSWManager(self.indices_dir, self.graph_loader, driver)
             self.hnsw_manager.load_all_indices()
-            logger.info("✅ HNSW indices loaded (metadata from Neo4j)")
+            logger.info(" HNSW indices loaded (metadata from Neo4j)")
             
             # Initialize query orchestrator
-            logger.info("🎯 Initializing query orchestrator...")
+            logger.info(" Initializing query orchestrator...")
             self.query_orchestrator = MAGQueryOrchestrator(self.hnsw_manager, self.traversal_utils)
-            logger.info("✅ Query orchestrator initialized")
+            logger.info(" Query orchestrator initialized")
             
             self.is_loaded = True
             self.load_time = time.time() - start_time
             
-            logger.info(f"✅ MAG Agent loaded successfully in {self.load_time:.2f}s (using Neo4j for graph traversal)")
+            logger.info(f" MAG Agent loaded successfully in {self.load_time:.2f}s (using Neo4j for graph traversal)")
             
             return True
             
         except Exception as e:
-            logger.error(f"❌ Failed to load MAG Agent: {e}")
+            logger.error(f" Failed to load MAG Agent: {e}")
             import traceback
             traceback.print_exc()
             return False
@@ -100,13 +100,13 @@ class MAGAgent:
             raise RuntimeError("Agent not loaded. Call load_all() first.")
         
         try:
-            logger.info(f"🎯 MAGAgent.search_papers_by_title called with query='{query}'")
+            logger.info(f" MAGAgent.search_papers_by_title called with query='{query}'")
             result = self.query_orchestrator._find_paper_by_title(query)
-            logger.info(f"📊 Query orchestrator returned: {result}")
+            logger.info(f" Query orchestrator returned: {result}")
             
             results = result.get('results', [])
-            logger.info(f"📋 Returning {len(results)} results from orchestrator")
-            logger.info(f"🔍 First result keys: {list(results[0].keys()) if results else 'No results'}")
+            logger.info(f" Returning {len(results)} results from orchestrator")
+            logger.info(f" First result keys: {list(results[0].keys()) if results else 'No results'}")
             
             return results
         except Exception as e:
@@ -399,7 +399,7 @@ class MAGAgent:
         evidence = {
             'question_id': question_id,
             'timestamp': time.strftime('%Y-%m-%d %H:%M:%S'),
-            'index_version': {'dense': 'v1'},  # TODO: Get actual version
+            'index_version': {'dense': 'v1'}, # TODO: Get actual version
             'query_result': query_result,
             'agent_stats': self.get_agent_stats()
         }
@@ -408,13 +408,13 @@ class MAGAgent:
         with open(evidence_file, 'w') as f:
             json.dump(evidence, f, indent=2)
         
-        logger.info(f"💾 Saved query evidence to {evidence_file}")
+        logger.info(f" Saved query evidence to {evidence_file}")
         return str(evidence_file)
 
 
 def main():
     """Test the MAG Agent"""
-    logger.info("🧬 Testing MAG Agent")
+    logger.info(" Testing MAG Agent")
     
     try:
         # Initialize agent
@@ -427,10 +427,10 @@ def main():
         if not agent.load_all():
             return False
         
-        logger.info("✅ MAG Agent loaded successfully!")
+        logger.info(" MAG Agent loaded successfully!")
         
         # Test basic functionality
-        logger.info("🔍 Testing search functionality...")
+        logger.info(" Testing search functionality...")
         
         # Test title search
         title_results = agent.search_papers_by_title("machine learning", top_k=5)
@@ -447,7 +447,7 @@ def main():
             
             if authors:
                 # Test getting papers by these authors
-                author_papers = agent.get_papers_by_author(authors[:2])  # Limit to first 2 authors
+                author_papers = agent.get_papers_by_author(authors[:2]) # Limit to first 2 authors
                 logger.info(f"Papers by first 2 authors: {len(author_papers)} found")
         
         # Test year range query
@@ -459,15 +459,15 @@ def main():
         logger.info(f"Natural language query: {nl_result['final_count']} papers found")
         
         # Print statistics
-        logger.info("📊 Agent statistics:")
+        logger.info(" Agent statistics:")
         stats = agent.get_agent_stats()
         for key, value in stats.items():
-            logger.info(f"  {key}: {value}")
+            logger.info(f" {key}: {value}")
         
         return True
         
     except Exception as e:
-        logger.error(f"❌ Failed to test MAG Agent: {e}")
+        logger.error(f" Failed to test MAG Agent: {e}")
         import traceback
         traceback.print_exc()
         return False

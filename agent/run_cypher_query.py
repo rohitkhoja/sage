@@ -49,9 +49,9 @@ if __name__ == "__main__":
     if len(sys.argv) < 2:
         print("Usage: python run_cypher_query.py '<CYPHER_QUERY>'")
         print("\nExamples:")
-        print('  python run_cypher_query.py "MATCH (p:Paper) RETURN count(p) AS count"')
-        print('  python run_cypher_query.py "MATCH (a:Author {name: \\"John Smith\\"}) RETURN a.authorId, a.name"')
-        print('  python run_cypher_query.py "MATCH (p:Paper)-[:AUTHORED]->(a:Author) RETURN p.title, a.name LIMIT 10"')
+        print(' python run_cypher_query.py "MATCH (p:Paper) RETURN count(p) AS count"')
+        print(' python run_cypher_query.py "MATCH (a:Author {name: \\"John Smith\\"}) RETURN a.authorId, a.name"')
+        print(' python run_cypher_query.py "MATCH (p:Paper)-[:AUTHORED]->(a:Author) RETURN p.title, a.name LIMIT 10"')
         sys.exit(1)
     
     query = sys.argv[1]

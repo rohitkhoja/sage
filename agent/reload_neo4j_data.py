@@ -20,7 +20,7 @@ from loguru import logger
 
 def clear_database(uri="bolt://localhost:7687", user="neo4j", password="neo4j123", database=None):
     """Clear all nodes and relationships from Neo4j database"""
-    logger.info("🗑️  Clearing existing Neo4j database...")
+    logger.info(" Clearing existing Neo4j database...")
     
     try:
         driver = GraphDatabase.driver(uri, auth=basic_auth(user, password))
@@ -28,9 +28,9 @@ def clear_database(uri="bolt://localhost:7687", user="neo4j", password="neo4j123
         
         with driver.session(**db_kwargs) as session:
             # Delete all relationships first in batches (required before deleting nodes)
-            logger.info("   Deleting all relationships in batches...")
+            logger.info(" Deleting all relationships in batches...")
             total_deleted_rels = 0
-            batch_size = 100000  # Delete 100k at a time
+            batch_size = 100000 # Delete 100k at a time
             
             while True:
                 # Delete a batch of relationships
@@ -42,18 +42,18 @@ def clear_database(uri="bolt://localhost:7687", user="neo4j", password="neo4j123
                     deleted = record["deleted"]
                     total_deleted_rels += deleted
                     if total_deleted_rels % 1000000 == 0 or deleted == 0:
-                        logger.info(f"   Deleted {total_deleted_rels:,} relationships so far...")
+                        logger.info(f" Deleted {total_deleted_rels:,} relationships so far...")
                     if deleted == 0:
                         break
                 else:
                     break
             
-            logger.info(f"   ✅ Deleted {total_deleted_rels:,} relationships total")
+            logger.info(f" Deleted {total_deleted_rels:,} relationships total")
             
             # Delete all nodes in batches
-            logger.info("   Deleting all nodes in batches...")
+            logger.info(" Deleting all nodes in batches...")
             total_deleted_nodes = 0
-            batch_size = 100000  # Delete 100k at a time
+            batch_size = 100000 # Delete 100k at a time
             
             while True:
                 # Delete a batch of nodes
@@ -65,19 +65,19 @@ def clear_database(uri="bolt://localhost:7687", user="neo4j", password="neo4j123
                     deleted = record["deleted"]
                     total_deleted_nodes += deleted
                     if total_deleted_nodes % 1000000 == 0 or deleted == 0:
-                        logger.info(f"   Deleted {total_deleted_nodes:,} nodes so far...")
+                        logger.info(f" Deleted {total_deleted_nodes:,} nodes so far...")
                     if deleted == 0:
                         break
                 else:
                     break
             
-            logger.info(f"   ✅ Deleted {total_deleted_nodes:,} nodes total")
+            logger.info(f" Deleted {total_deleted_nodes:,} nodes total")
         
         driver.close()
-        logger.info("✅ Database cleared successfully!")
+        logger.info(" Database cleared successfully!")
         return True
     except Exception as e:
-        logger.error(f"❌ Failed to clear database: {e}")
+        logger.error(f" Failed to clear database: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -87,11 +87,11 @@ def reload_data(processed_dir, uri="bolt://localhost:7687", user="neo4j", passwo
     
     processed_path = Path(processed_dir)
     if not processed_path.exists():
-        logger.error(f"❌ Processed directory not found: {processed_dir}")
+        logger.error(f" Processed directory not found: {processed_dir}")
         return False
     
     logger.info("=" * 80)
-    logger.info("🔄 RELOADING NEO4J DATABASE")
+    logger.info(" RELOADING NEO4J DATABASE")
     logger.info("=" * 80)
     logger.info(f"Processed directory: {processed_dir}")
     logger.info(f"Neo4j URI: {uri}")
@@ -101,21 +101,21 @@ def reload_data(processed_dir, uri="bolt://localhost:7687", user="neo4j", passwo
     # Step 1: Clear database if requested
     if clear_first:
         if not clear_database(uri, user, password, database):
-            logger.error("❌ Failed to clear database. Exiting.")
+            logger.error(" Failed to clear database. Exiting.")
             return False
         logger.info("")
     else:
-        logger.info("⚠️  Skipping database clear (will upsert existing data)")
+        logger.info(" Skipping database clear (will upsert existing data)")
         logger.info("")
     
     # Step 2: Load nodes
     logger.info("=" * 80)
-    logger.info("📊 LOADING NODES")
+    logger.info(" LOADING NODES")
     logger.info("=" * 80)
     try:
         client = Neo4jGraphClient(uri, user, password, database)
         node_counts = client.load_from_processed(processed_dir)
-        logger.info(f"✅ Node loading complete: {node_counts}")
+        logger.info(f" Node loading complete: {node_counts}")
         
         # Verify node counts
         with client._driver.session(**client._db_kwargs) as session:
@@ -124,15 +124,15 @@ def reload_data(processed_dir, uri="bolt://localhost:7687", user="neo4j", passwo
             field_count = session.run("MATCH (f:Field) RETURN count(f) AS count").single()["count"]
             inst_count = session.run("MATCH (i:Institution) RETURN count(i) AS count").single()["count"]
             
-            logger.info(f"\n📈 Final Neo4j node counts:")
-            logger.info(f"   Papers: {paper_count:,}")
-            logger.info(f"   Authors: {author_count:,}")
-            logger.info(f"   Fields: {field_count:,}")
-            logger.info(f"   Institutions: {inst_count:,}")
+            logger.info(f"\n Final Neo4j node counts:")
+            logger.info(f" Papers: {paper_count:,}")
+            logger.info(f" Authors: {author_count:,}")
+            logger.info(f" Fields: {field_count:,}")
+            logger.info(f" Institutions: {inst_count:,}")
         
         client.close()
     except Exception as e:
-        logger.error(f"❌ Failed to load nodes: {e}")
+        logger.error(f" Failed to load nodes: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -140,12 +140,12 @@ def reload_data(processed_dir, uri="bolt://localhost:7687", user="neo4j", passwo
     # Step 3: Load edges
     logger.info("")
     logger.info("=" * 80)
-    logger.info("🔗 LOADING EDGES")
+    logger.info(" LOADING EDGES")
     logger.info("=" * 80)
     try:
         client = Neo4jGraphClient(uri, user, password, database)
         edge_counts = client.load_edges_from_processed(processed_dir)
-        logger.info(f"✅ Edge loading complete: {edge_counts}")
+        logger.info(f" Edge loading complete: {edge_counts}")
         
         # Verify edge counts
         with client._driver.session(**client._db_kwargs) as session:
@@ -154,22 +154,22 @@ def reload_data(processed_dir, uri="bolt://localhost:7687", user="neo4j", passwo
             has_field_count = session.run("MATCH ()-[r:HAS_FIELD]->() RETURN count(r) AS count").single()["count"]
             affiliated_count = session.run("MATCH ()-[r:AFFILIATED_WITH]->() RETURN count(r) AS count").single()["count"]
             
-            logger.info(f"\n📈 Final Neo4j edge counts:")
-            logger.info(f"   AUTHORED: {authored_count:,}")
-            logger.info(f"   CITES: {cites_count:,}")
-            logger.info(f"   HAS_FIELD: {has_field_count:,}")
-            logger.info(f"   AFFILIATED_WITH: {affiliated_count:,}")
+            logger.info(f"\n Final Neo4j edge counts:")
+            logger.info(f" AUTHORED: {authored_count:,}")
+            logger.info(f" CITES: {cites_count:,}")
+            logger.info(f" HAS_FIELD: {has_field_count:,}")
+            logger.info(f" AFFILIATED_WITH: {affiliated_count:,}")
         
         client.close()
     except Exception as e:
-        logger.error(f"❌ Failed to load edges: {e}")
+        logger.error(f" Failed to load edges: {e}")
         import traceback
         traceback.print_exc()
         return False
     
     logger.info("")
     logger.info("=" * 80)
-    logger.info("🎉 DATABASE RELOAD COMPLETE!")
+    logger.info(" DATABASE RELOAD COMPLETE!")
     logger.info("=" * 80)
     return True
 

@@ -208,7 +208,7 @@ class GraphBuilder:
             return self.config.table_similarity_threshold
         elif (type1 == ChunkType.TABLE and type2 == ChunkType.DOCUMENT) or \
              (type1 == ChunkType.DOCUMENT and type2 == ChunkType.TABLE):
-            return self.config.table_similarity_threshold  # Use table threshold for mixed connections
+            return self.config.table_similarity_threshold # Use table threshold for mixed connections
         elif type1 == ChunkType.DOCUMENT and type2 == ChunkType.DOCUMENT:
             return self.config.sentence_similarity_threshold
         else:
@@ -356,7 +356,7 @@ class GraphBuilder:
                 if len(value_str) > 2 and value_str in text_lower:
                     references.append(f"{key}: {value}")
         
-        return references[:10]  # Limit to top 10 references
+        return references[:10] # Limit to top 10 references
     
     def _find_column_references_in_text(self, table_chunk: TableChunk, text: str) -> List[str]:
         """Find references to table columns in document text"""

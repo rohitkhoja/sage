@@ -21,31 +21,31 @@ def try_load_local(local_model_root: str) -> SentenceTransformer | None:
         candidates = glob.glob(f"{local_model_root}/{snapshot_glob}/*")
         model_path = candidates[0] if candidates else local_model_root
         model = SentenceTransformer(model_path)
-        logger.info(f"✅ Loaded local model from: {model_path}")
+        logger.info(f" Loaded local model from: {model_path}")
         return model
     except Exception as e:
-        logger.warning(f"⚠️ Local model load failed: {e}")
+        logger.warning(f" Local model load failed: {e}")
         return None
 
 
 def repair_local(local_model_root: str) -> bool:
     try:
         if os.path.isdir(local_model_root):
-            logger.info(f"🧹 Removing invalid local model directory: {local_model_root}")
+            logger.info(f" Removing invalid local model directory: {local_model_root}")
             shutil.rmtree(local_model_root, ignore_errors=True)
         return True
     except Exception as e:
-        logger.warning(f"⚠️ Failed to remove local model dir: {e}")
+        logger.warning(f" Failed to remove local model dir: {e}")
         return False
 
 
 def try_load_hf() -> SentenceTransformer | None:
     try:
         model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
-        logger.info("✅ Loaded model from Hugging Face")
+        logger.info(" Loaded model from Hugging Face")
         return model
     except Exception as e:
-        logger.error(f"❌ Failed to load from Hugging Face: {e}")
+        logger.error(f" Failed to load from Hugging Face: {e}")
         return None
 
 
@@ -68,7 +68,7 @@ def main() -> int:
     if model is not None:
         return 0
 
-    logger.error("❌ All attempts to load the sentence transformer failed.")
+    logger.error(" All attempts to load the sentence transformer failed.")
     return 1
 
 

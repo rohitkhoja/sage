@@ -28,7 +28,7 @@ class PipelineConfig:
     max_neighbors_per_chunk: int = 200
     similarity_threshold: float = 0.3
     output_dir: str = "output"
-    faiss_index_type: str = "HNSW"  # or "Flat"
+    faiss_index_type: str = "HNSW" # or "Flat"
     use_gpu_faiss: bool = True
 
 
@@ -384,11 +384,11 @@ class GraphBuildingPhase:
         
         # Create HNSW index as requested
         if self.config.faiss_index_type == "HNSW":
-            self.faiss_index = faiss.IndexHNSWFlat(dimension, 32)  # M=32 for balanced performance
-            self.faiss_index.hnsw.efConstruction = 200  # Higher quality construction
-            self.faiss_index.hnsw.efSearch = 100  # Search quality
+            self.faiss_index = faiss.IndexHNSWFlat(dimension, 32) # M=32 for balanced performance
+            self.faiss_index.hnsw.efConstruction = 200 # Higher quality construction
+            self.faiss_index.hnsw.efSearch = 100 # Search quality
         else:
-            self.faiss_index = faiss.IndexFlatIP(dimension)  # Fallback to flat index
+            self.faiss_index = faiss.IndexFlatIP(dimension) # Fallback to flat index
         
         # Move to GPU if requested and available
         if self.config.use_gpu_faiss and faiss.get_num_gpus() > 0:
@@ -509,7 +509,7 @@ class GraphBuildingPhase:
             
             neighbors = []
             for sim, idx in zip(similarities[0], indices[0]):
-                if idx == -1:  # Invalid index
+                if idx == -1: # Invalid index
                     continue
                 
                 neighbor_chunk_id = self.index_to_chunk_id[idx]
@@ -520,7 +520,7 @@ class GraphBuildingPhase:
                 
                 neighbors.append((neighbor_chunk_id, float(sim)))
             
-            return neighbors[:k]  # Return only k neighbors
+            return neighbors[:k] # Return only k neighbors
             
         except Exception as e:
             logger.warning(f"Error finding neighbors for {chunk_id}: {e}")
@@ -655,8 +655,8 @@ def main():
     config = PipelineConfig(
         num_gpus=4,
         chunk_batch_size=32,
-        graph_build_threads=64,  # 64 parallel threads as requested
-        max_neighbors_per_chunk=200,  # 200 neighbors per chunk as requested
+        graph_build_threads=64, # 64 parallel threads as requested
+        max_neighbors_per_chunk=200, # 200 neighbors per chunk as requested
         similarity_threshold=0.3,
         output_dir="output",
         faiss_index_type="HNSW",
@@ -670,7 +670,7 @@ def main():
     results = pipeline.run_complete_pipeline(
         json_file="datasets/ott-qa.json",
         start_index=0,
-        end_index=100  # Process first 100 items
+        end_index=100 # Process first 100 items
     )
     
     if results.get("success"):

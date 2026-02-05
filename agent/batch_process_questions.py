@@ -58,11 +58,11 @@ class QuestionProcessor:
         """Build the full prompt for GPT"""
         prompt = f"""{self.prompt_template}
 
-## 📚 Few-Shot Examples
+## Few-Shot Examples
 
 {self.few_shot_examples}
 
-## 🎯 Your Task
+## Your Task
 
 Generate Python code to answer this question:
 
@@ -71,7 +71,7 @@ Generate Python code to answer this question:
 """
         if retry_context:
             prompt += f"""
-## ⚠️ Previous Attempt Resulted in Empty Results
+## Previous Attempt Resulted in Empty Results
 
 The previous code generated {retry_context} results. Please reconsider your approach:
 
@@ -106,7 +106,7 @@ Generate new code with a revised approach:
             )
             return response.choices[0].message.content
         except Exception as e:
-            print(f"❌ GPT API error: {e}")
+            print(f" GPT API error: {e}")
             return None
     
     def _extract_code(self, response: str) -> Optional[str]:
@@ -185,9 +185,9 @@ else:
             return final_nodes, log_output
         
         except subprocess.TimeoutExpired:
-            return [], f"❌ Code execution timed out after 600 seconds"
+            return [], f" Code execution timed out after 600 seconds"
         except Exception as e:
-            return [], f"❌ Execution error: {e}"
+            return [], f" Execution error: {e}"
         finally:
             # Clean up temp file
             if os.path.exists(temp_file):
@@ -261,11 +261,11 @@ else:
             prompt = self._build_prompt(question, retry_context)
             
             # Call GPT
-            print("\n🤖 Calling GPT-4o-mini...")
+            print("\n Calling GPT-4o-mini...")
             response = self._call_gpt(prompt)
             
             if not response:
-                print("❌ Failed to get response from GPT")
+                print(" Failed to get response from GPT")
                 results['attempts'].append({
                     'attempt': attempt + 1,
                     'error': 'GPT API call failed',
@@ -276,27 +276,27 @@ else:
                 continue
             
             # Extract code
-            print("📝 Extracting code from response...")
+            print(" Extracting code from response...")
             code = self._extract_code(response)
             
             if not code:
-                print("❌ Could not extract code from response")
+                print(" Could not extract code from response")
                 results['attempts'].append({
                     'attempt': attempt + 1,
                     'error': 'Code extraction failed',
-                    'code': response[:500],  # Store first 500 chars of response
+                    'code': response[:500], # Store first 500 chars of response
                     'final_nodes': [],
                     'log': ''
                 })
                 continue
             
-            print(f"✅ Extracted {len(code)} characters of code")
+            print(f" Extracted {len(code)} characters of code")
             
             # Execute code
-            print("🚀 Executing code...")
+            print(" Executing code...")
             final_nodes, log_output = self._execute_code(code, question)
             
-            print(f"✅ Execution complete: {len(final_nodes)} nodes found")
+            print(f" Execution complete: {len(final_nodes)} nodes found")
             
             # Store attempt
             attempt_result = {
@@ -312,10 +312,10 @@ else:
             # If we got results, we're done
             if final_nodes:
                 results['success'] = True
-                print(f"✅ Success! Found {len(final_nodes)} nodes")
+                print(f" Success! Found {len(final_nodes)} nodes")
                 break
             else:
-                print(f"⚠️ No results found, {'retrying...' if attempt < MAX_RETRIES else 'max retries reached'}")
+                print(f" No results found, {'retrying...' if attempt < MAX_RETRIES else 'max retries reached'}")
         
         return results
     
@@ -357,9 +357,9 @@ else:
                 f.write(f"GENERATED CODE:\n{'-'*80}\n{attempt.get('code', 'N/A')[:2000]}\n\n")
                 f.write(f"{'='*80}\n\n")
         
-        print(f"📁 Results saved:")
-        print(f"   JSON: {json_file}")
-        print(f"   TXT:  {txt_file}")
+        print(f" Results saved:")
+        print(f" JSON: {json_file}")
+        print(f" TXT: {txt_file}")
 
 
 def calculate_recall_at_20(query_id: int, output_dir: Path, gold_docs: List[int]) -> float:
@@ -404,7 +404,7 @@ def main():
     processor = QuestionProcessor()
     
     # Read CSV file with gold documents
-    print(f"📖 Reading CSV file: {CSV_FILE}")
+    print(f" Reading CSV file: {CSV_FILE}")
     questions = []
     gold_docs_map = {}
     
@@ -417,10 +417,10 @@ def main():
             questions.append((query_id, question))
             gold_docs_map[query_id] = gold_docs
     
-    print(f"✅ Found {len(questions)} questions")
+    print(f" Found {len(questions)} questions")
     
     # Calculate recall for existing results and filter
-    print(f"\n📊 Checking existing results for recall scores...")
+    print(f"\n Checking existing results for recall scores...")
     questions_to_process = []
     skipped_count = 0
     
@@ -429,13 +429,13 @@ def main():
         recall_at_20 = calculate_recall_at_20(query_id, Path(OUTPUT_DIR), gold_docs)
         
         if recall_at_20 >= 50.0:
-            print(f"⏭️  Skipping Q{query_id}: Recall@20 = {recall_at_20:.1f}% (>= 50%)")
+            print(f" Skipping Q{query_id}: Recall@20 = {recall_at_20:.1f}% (>= 50%)")
             skipped_count += 1
         else:
             questions_to_process.append((query_id, question))
-            print(f"✅ Will process Q{query_id}: Recall@20 = {recall_at_20:.1f}% (< 50%)")
+            print(f" Will process Q{query_id}: Recall@20 = {recall_at_20:.1f}% (< 50%)")
     
-    print(f"\n📊 Summary: {skipped_count} questions skipped, {len(questions_to_process)} questions to process\n")
+    print(f"\n Summary: {skipped_count} questions skipped, {len(questions_to_process)} questions to process\n")
     
     # Process each question
     for query_id, question in questions_to_process:
@@ -443,7 +443,7 @@ def main():
             results = processor.process_question(question, query_id)
             processor.save_results(results, OUTPUT_DIR)
         except Exception as e:
-            print(f"❌ Error processing question {query_id}: {e}")
+            print(f" Error processing question {query_id}: {e}")
             # Save error result
             error_results = {
                 'query_id': query_id,
@@ -456,8 +456,8 @@ def main():
             processor.save_results(error_results, OUTPUT_DIR)
     
     print(f"\n{'='*80}")
-    print("✅ Batch processing complete!")
-    print(f"📁 Results saved to: {OUTPUT_DIR}")
+    print(" Batch processing complete!")
+    print(f" Results saved to: {OUTPUT_DIR}")
     print(f"{'='*80}\n")
 
 

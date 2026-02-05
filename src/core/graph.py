@@ -10,7 +10,7 @@ import json
 import numpy as np
 import pandas as pd
 from loguru import logger
-import umap  # Add UMAP import
+import umap # Add UMAP import
 
 from .models import (
     GraphNode, DocumentChunk, TableChunk, 
@@ -82,7 +82,7 @@ class KnowledgeGraph:
                     continue
             
             if failed_nodes:
-                logger.warning(f"Failed to add {len(failed_nodes)} nodes: {failed_nodes[:5]}...")  # Show first 5 failures
+                logger.warning(f"Failed to add {len(failed_nodes)} nodes: {failed_nodes[:5]}...") # Show first 5 failures
             
             return nodes_added
             
@@ -192,7 +192,7 @@ class KnowledgeGraph:
             # Prepare all data first (no locks needed)
             edges_to_add = {}
             nx_edges_list = []
-            connection_updates = {}  # Track connection updates for nodes
+            connection_updates = {} # Track connection updates for nodes
             failed_edges = []
             
             for edge in edges:
@@ -540,14 +540,14 @@ class KnowledgeGraph:
                 node_y.append(y)
             
             node_data = self.graph.nodes[node_id]
-            node_text.append(node_id[:8] + "...")  # Shorter text for performance
+            node_text.append(node_id[:8] + "...") # Shorter text for performance
             
             # Color based on specified attribute
             attr_value = node_data.get(color_by, "unknown")
             node_colors.append(color_map.get(attr_value, "gray"))
             
             # Use constant size for all nodes
-            node_sizes.append(20)  # Fixed size for all nodes (increased for visibility)
+            node_sizes.append(20) # Fixed size for all nodes (increased for visibility)
             
             # Simplified hover text for performance
             chunk = self.nodes[node_id].chunk
@@ -638,7 +638,7 @@ class KnowledgeGraph:
     
     def _create_similarity_layout_subgraph(self, subgraph) -> Dict[str, Tuple[float, float]]:
         """Create similarity layout for subgraph"""
-        return self._create_similarity_layout()  # Can reuse existing logic
+        return self._create_similarity_layout() # Can reuse existing logic
     
     def get_graph_statistics(self) -> Dict[str, Any]:
         """Get comprehensive statistics about the graph"""
@@ -734,7 +734,7 @@ class KnowledgeGraph:
                             summary=chunk_data.get("summary", ""),
                             merged_sentence_count=chunk_data.get("merged_sentence_count", 1)
                         )
-                    else:  # TABLE
+                    else: # TABLE
                         # Handle TableChunk with proper field mapping
                         # Use content from chunk_data, fallback to summary if content is empty
                         content = chunk_data.get("content", "")
@@ -870,7 +870,7 @@ class KnowledgeGraph:
                         chunk = DocumentChunk(
                             chunk_id=node_id,
                             content=node_data.get("content", ""),
-                            embedding=None,  # Not available in simplified format
+                            embedding=None, # Not available in simplified format
                             source_info=source_info,
                             sentences=[],
                             keywords=node_data.get("keywords", []),
@@ -881,22 +881,22 @@ class KnowledgeGraph:
                         # Create TableChunk with correct field names to match the TableChunk model
                         chunk = TableChunk(
                             chunk_id=node_id,
-                            content=node_data.get("content", ""),  # Use content field, not table_description
-                            embedding=None,  # Not available in simplified format
+                            content=node_data.get("content", ""), # Use content field, not table_description
+                            embedding=None, # Not available in simplified format
                             source_info=source_info,
-                            column_headers=[],  # Empty list for simplified format
-                            column_descriptions=[],  # List, not dict
-                            rows_with_headers=[],  # Correct field name
+                            column_headers=[], # Empty list for simplified format
+                            column_descriptions=[], # List, not dict
+                            rows_with_headers=[], # Correct field name
                             keywords=node_data.get("keywords", []),
                             summary=node_data.get("content", "")[:200] + "..." if len(node_data.get("content", "")) > 200 else node_data.get("content", ""),
-                            merged_row_count=1  # Default value
+                            merged_row_count=1 # Default value
                         )
                     
                     # Create node
                     node = GraphNode(
                         node_id=node_id,
                         chunk=chunk,
-                        connections=[]  # Will be populated from edges
+                        connections=[] # Will be populated from edges
                     )
                     nodes_to_import.append(node)
                     
@@ -927,7 +927,7 @@ class KnowledgeGraph:
                             edge_id=edge_id,
                             source_chunk_id=source_id,
                             target_chunk_id=target_id,
-                            edge_type=EdgeType.DOCUMENT_TO_DOCUMENT,  # Default type
+                            edge_type=EdgeType.DOCUMENT_TO_DOCUMENT, # Default type
                             semantic_similarity=similarity,
                             shared_keywords=[]
                         )
@@ -1006,7 +1006,7 @@ class KnowledgeGraph:
             
             # Convert similarity to distance: higher similarity = shorter distance
             # We use (1 - similarity) so that high similarity (close to 1) becomes low distance (close to 0)
-            distance = max(0.01, 1.0 - similarity)  # Ensure minimum distance to avoid zero weights
+            distance = max(0.01, 1.0 - similarity) # Ensure minimum distance to avoid zero weights
             
             weighted_graph.add_edge(source, target, weight=distance)
         
@@ -1015,10 +1015,10 @@ class KnowledgeGraph:
             # The weight parameter in spring_layout represents ideal edge length
             pos = nx.spring_layout(
                 weighted_graph, 
-                weight='weight',  # Use our distance weights
-                k=2.0,  # Optimal distance between nodes
-                iterations=100,  # More iterations for better convergence
-                threshold=1e-4,  # Precision threshold
+                weight='weight', # Use our distance weights
+                k=2.0, # Optimal distance between nodes
+                iterations=100, # More iterations for better convergence
+                threshold=1e-4, # Precision threshold
                 dim=2
             )
             
@@ -1051,32 +1051,32 @@ class KnowledgeGraph:
                 import cupy as cp_module
                 cp = cp_module
                 if cp.cuda.is_available():
-                    logger.info("✅ CuPy detected - GPU acceleration available")
+                    logger.info(" CuPy detected - GPU acceleration available")
                     try:
                         device_count = cp.cuda.runtime.getDeviceCount()
                         current_device = cp.cuda.get_device_id()
-                        logger.info(f"   - GPU Devices: {device_count}")
-                        logger.info(f"   - Current Device: {current_device}")
+                        logger.info(f" - GPU Devices: {device_count}")
+                        logger.info(f" - Current Device: {current_device}")
                     except Exception as e:
-                        logger.info(f"   - GPU info unavailable: {e}")
+                        logger.info(f" - GPU info unavailable: {e}")
                     
                     try:
                         import cuml
                         use_cuml = True
                         use_gpu = True
-                        logger.info("✅ cuML available - Full GPU acceleration enabled")
+                        logger.info(" cuML available - Full GPU acceleration enabled")
                     except ImportError:
-                        use_gpu = True  # Use CuPy for memory operations
-                        logger.info("⚡ Using CuPy optimization (cuML not available)")
+                        use_gpu = True # Use CuPy for memory operations
+                        logger.info(" Using CuPy optimization (cuML not available)")
                 else:
-                    logger.info("❌ CUDA not available on CuPy")
+                    logger.info(" CUDA not available on CuPy")
             except ImportError:
-                logger.info("❌ CuPy not available, using CPU UMAP")
+                logger.info(" CuPy not available, using CPU UMAP")
             except Exception as e:
-                logger.info(f"❌ CuPy initialization failed: {e}, using CPU UMAP")
+                logger.info(f" CuPy initialization failed: {e}, using CPU UMAP")
             
             # Extract embeddings for specified nodes only
-            logger.info(f"🔍 Processing embeddings for {len(self.nodes)} visualization nodes...")
+            logger.info(f" Processing embeddings for {len(self.nodes)} visualization nodes...")
             
             valid_nodes = []
             for node_id in self.nodes.keys():
@@ -1095,7 +1095,7 @@ class KnowledgeGraph:
             
             # Convert to numpy array with optimal dtype
             embeddings_array = np.array(embeddings, dtype=np.float32)
-            logger.info(f"📊 Collected {len(embeddings)} embeddings with shape {embeddings_array.shape}")
+            logger.info(f" Collected {len(embeddings)} embeddings with shape {embeddings_array.shape}")
             
             # Adaptive parameters for visualization performance
             n_nodes = len(embeddings)
@@ -1113,11 +1113,11 @@ class KnowledgeGraph:
                 min_dist = 0.1
                 spread = 1.0
             
-            logger.info(f"🎯 UMAP parameters: n_neighbors={n_neighbors}, min_dist={min_dist}, nodes={n_nodes}")
+            logger.info(f" UMAP parameters: n_neighbors={n_neighbors}, min_dist={min_dist}, nodes={n_nodes}")
             
             # GPU-accelerated computation
             if use_gpu and use_cuml:
-                logger.info("🚀 Using GPU-accelerated UMAP (cuML + CuPy)")
+                logger.info(" Using GPU-accelerated UMAP (cuML + CuPy)")
                 
                 # Move embeddings to GPU
                 embeddings_gpu = cp.asarray(embeddings_array)
@@ -1136,13 +1136,13 @@ class KnowledgeGraph:
                 )
                 
                 # Fit and transform on GPU
-                logger.info("⚡ Computing UMAP layout on GPU...")
+                logger.info(" Computing UMAP layout on GPU...")
                 positions_gpu = reducer.fit_transform(embeddings_gpu)
                 positions = cp.asnumpy(positions_gpu).astype(np.float64)
-                logger.info("✅ GPU UMAP computation completed")
+                logger.info(" GPU UMAP computation completed")
                 
             elif use_gpu and cp is not None:
-                logger.info("🔧 Using CuPy memory optimization with CPU UMAP")
+                logger.info(" Using CuPy memory optimization with CPU UMAP")
                 
                 # Use CuPy for memory operations
                 embeddings_gpu = cp.asarray(embeddings_array)
@@ -1173,12 +1173,12 @@ class KnowledgeGraph:
                             transform_queue_size=4.0
                         )
                 
-                logger.info("⚡ Computing UMAP layout with CuPy optimization...")
+                logger.info(" Computing UMAP layout with CuPy optimization...")
                 positions = reducer.fit_transform(embeddings_array_normalized)
-                logger.info("✅ CuPy-optimized UMAP computation completed")
+                logger.info(" CuPy-optimized UMAP computation completed")
                 
             else:
-                logger.info("💻 Using CPU UMAP with optimized parameters")
+                logger.info(" Using CPU UMAP with optimized parameters")
                 
                 reducer = umap.UMAP(
                     n_components=3 if use_3d else 2,
@@ -1199,9 +1199,9 @@ class KnowledgeGraph:
                     transform_queue_size=4.0
                 )
                 
-                logger.info("⚡ Computing UMAP layout on CPU...")
+                logger.info(" Computing UMAP layout on CPU...")
                 positions = reducer.fit_transform(embeddings_array)
-                logger.info("✅ CPU UMAP computation completed")
+                logger.info(" CPU UMAP computation completed")
             
             # Create position dictionary with explicit coordinates
             if use_3d:
@@ -1214,7 +1214,7 @@ class KnowledgeGraph:
             # Handle nodes without embeddings using spring layout
             missing_nodes = set(node_ids) - set(node_ids_with_embeddings)
             if missing_nodes:
-                logger.info(f"📍 Adding spring layout positions for {len(missing_nodes)} nodes without embeddings")
+                logger.info(f" Adding spring layout positions for {len(missing_nodes)} nodes without embeddings")
                 subgraph = self.graph.subgraph(missing_nodes)
                 if len(missing_nodes) > 0:
                     missing_pos = nx.spring_layout(subgraph, k=1, iterations=20)
@@ -1228,13 +1228,13 @@ class KnowledgeGraph:
             else:
                 gpu_mode = "CPU"
             
-            logger.info(f"🎉 UMAP layout complete: {len(pos)} nodes positioned using {gpu_mode}")
-            logger.info(f"📈 Layout dimensions: {'3D' if use_3d else '2D'}")
+            logger.info(f" UMAP layout complete: {len(pos)} nodes positioned using {gpu_mode}")
+            logger.info(f" Layout dimensions: {'3D' if use_3d else '2D'}")
             
             return pos
             
         except Exception as e:
-            logger.warning(f"❌ GPU UMAP layout failed: {e}. Falling back to spring layout.")
+            logger.warning(f" GPU UMAP layout failed: {e}. Falling back to spring layout.")
             # Fallback to spring layout
             subgraph = self.graph.subgraph(self.nodes.keys())
             return nx.spring_layout(subgraph, k=3, iterations=50)
@@ -1340,15 +1340,15 @@ class KnowledgeGraph:
             
             minimal_nodes.append(node_data)
         
-        logger.info(f"📍 Created {len(minimal_nodes)} minimal node data entries")
+        logger.info(f" Created {len(minimal_nodes)} minimal node data entries")
         
         # Create minimal edge data (only high similarity edges for performance)
         minimal_edges = []
         edge_count = 0
-        max_edges = 5000  # Limit edges for performance
-        nodes_to_visualize_set = set(nodes_to_visualize)  # Convert to set for O(1) lookup
+        max_edges = 5000 # Limit edges for performance
+        nodes_to_visualize_set = set(nodes_to_visualize) # Convert to set for O(1) lookup
         
-        logger.info(f"🔗 Processing edges for visualization (sampling from {len(self.edges)} total edges)...")
+        logger.info(f" Processing edges for visualization (sampling from {len(self.edges)} total edges)...")
         
         # Use a more efficient approach: collect high-quality edges without full sort
         edge_candidates = []
@@ -1368,13 +1368,13 @@ class KnowledgeGraph:
                 edge_candidates.append((edge_id, edge.semantic_similarity))
             
             # Limit processing to avoid infinite loops with huge graphs
-            if processed_count >= 100000:  # Process max 100k edges for performance
-                logger.info(f"⚡ Processed {processed_count} edges, found {len(edge_candidates)} candidates")
+            if processed_count >= 100000: # Process max 100k edges for performance
+                logger.info(f" Processed {processed_count} edges, found {len(edge_candidates)} candidates")
                 break
         
         # Sort only the candidates (much smaller list)
         edge_candidates.sort(key=lambda x: x[1], reverse=True)
-        logger.info(f"📊 Found {len(edge_candidates)} edge candidates, selecting top {max_edges}")
+        logger.info(f" Found {len(edge_candidates)} edge candidates, selecting top {max_edges}")
         
         # Take top edges
         for edge_id, similarity in edge_candidates[:max_edges]:
@@ -1396,12 +1396,12 @@ class KnowledgeGraph:
             'use_3d': use_3d
         }
         
-        logger.info(f"✅ Generated minimal visualization data: {len(minimal_nodes)} nodes, {len(minimal_edges)} edges")
-        logger.info(f"📈 Edge processing completed: {edge_count} edges selected for visualization")
+        logger.info(f" Generated minimal visualization data: {len(minimal_nodes)} nodes, {len(minimal_edges)} edges")
+        logger.info(f" Edge processing completed: {edge_count} edges selected for visualization")
         
         # Store coordinates for potential export/reuse
         if hasattr(self, '_node_positions') and self._node_positions:
-            logger.info(f"💾 Node coordinates computed and stored for {len(self._node_positions)} nodes")
+            logger.info(f" Node coordinates computed and stored for {len(self._node_positions)} nodes")
             stats['coordinates_computed'] = True
             stats['coordinate_dimensions'] = 3 if use_3d else 2
         else:
@@ -1431,7 +1431,7 @@ class KnowledgeGraph:
                 'nodes': [{'id': str, 'x': float, 'y': float, 'size': int, 'color': str, 'name': str, 'type': str, 'source': str}],
                 'edges': [{'source': str, 'target': str, 'similarity': float, 'size': float, 'color': str}],
                 'stats': {...},
-                'dataVersion': int  # For change detection
+                'dataVersion': int # For change detection
             }
         """
         if len(self.nodes) == 0:
@@ -1465,7 +1465,7 @@ class KnowledgeGraph:
         
         if layout == "umap":
             # Use GPU-accelerated UMAP for large datasets
-            pos = self._create_gpu_optimized_umap_layout(nodes_to_visualize, use_3d=False)  # Force 2D for Sigma.js
+            pos = self._create_gpu_optimized_umap_layout(nodes_to_visualize, use_3d=False) # Force 2D for Sigma.js
         elif layout == "similarity":
             subgraph = self.graph.subgraph(nodes_to_visualize)
             pos = self._create_similarity_layout_subgraph(subgraph)
@@ -1500,13 +1500,13 @@ class KnowledgeGraph:
             
             # Determine node size based on connections (degree centrality)
             node_degree = len(list(self.graph.neighbors(node_id)))
-            node_size = max(10, min(30, 10 + node_degree * 2))  # Scale size based on connections
+            node_size = max(10, min(30, 10 + node_degree * 2)) # Scale size based on connections
             
             # Determine node color based on type
             if chunk_type == 'document':
-                node_color = '#3498db'  # Blue for documents
+                node_color = '#3498db' # Blue for documents
             else:
-                node_color = '#e74c3c'  # Red for tables
+                node_color = '#e74c3c' # Red for tables
             
             # Create Sigma.js node format
             sigma_node = {
@@ -1515,7 +1515,7 @@ class KnowledgeGraph:
                 'y': float(y),
                 'size': node_size,
                 'color': node_color,
-                'label': node_id[:20] + "..." if len(node_id) > 20 else node_id,  # Shorter labels for performance
+                'label': node_id[:20] + "..." if len(node_id) > 20 else node_id, # Shorter labels for performance
                 'name': node_id[:20] + "..." if len(node_id) > 20 else node_id,
                 'type': chunk_type,
                 'source': source_name[:30] + "..." if len(source_name) > 30 else source_name
@@ -1523,15 +1523,15 @@ class KnowledgeGraph:
             
             sigma_nodes.append(sigma_node)
         
-        logger.info(f"📍 Created {len(sigma_nodes)} Sigma.js node data entries")
+        logger.info(f" Created {len(sigma_nodes)} Sigma.js node data entries")
         
         # Create Sigma.js-formatted edge data (only high similarity edges for performance)
         sigma_edges = []
         edge_count = 0
-        max_edges = 10000  # Sigma.js can handle more edges than Plotly
-        nodes_to_visualize_set = set(nodes_to_visualize)  # Convert to set for O(1) lookup
+        max_edges = 10000 # Sigma.js can handle more edges than Plotly
+        nodes_to_visualize_set = set(nodes_to_visualize) # Convert to set for O(1) lookup
         
-        logger.info(f"🔗 Processing edges for Sigma.js visualization (sampling from {len(self.edges)} total edges)...")
+        logger.info(f" Processing edges for Sigma.js visualization (sampling from {len(self.edges)} total edges)...")
         
         # Use a more efficient approach: collect high-quality edges without full sort
         edge_candidates = []
@@ -1551,23 +1551,23 @@ class KnowledgeGraph:
                 edge_candidates.append((edge_id, edge.semantic_similarity))
             
             # Limit processing to avoid infinite loops with huge graphs
-            if processed_count >= 200000:  # Process max 200k edges for performance
-                logger.info(f"⚡ Processed {processed_count} edges, found {len(edge_candidates)} candidates")
+            if processed_count >= 200000: # Process max 200k edges for performance
+                logger.info(f" Processed {processed_count} edges, found {len(edge_candidates)} candidates")
                 break
         
         # Sort only the candidates (much smaller list)
         edge_candidates.sort(key=lambda x: x[1], reverse=True)
-        logger.info(f"📊 Found {len(edge_candidates)} edge candidates, selecting top {max_edges}")
+        logger.info(f" Found {len(edge_candidates)} edge candidates, selecting top {max_edges}")
         
         # Take top edges and format for Sigma.js
         for edge_id, similarity in edge_candidates[:max_edges]:
             edge = self.edges[edge_id]
             
             # Calculate edge thickness based on similarity
-            edge_size = max(1, similarity * 8)  # Scale edge thickness
+            edge_size = max(1, similarity * 8) # Scale edge thickness
             
             # Determine edge color (subtle gray for all edges)
-            edge_color = '#95a5a6'  # Light gray
+            edge_color = '#95a5a6' # Light gray
             
             sigma_edge = {
                 'source': edge.source_chunk_id,
@@ -1575,7 +1575,7 @@ class KnowledgeGraph:
                 'similarity': float(similarity),
                 'size': float(edge_size),
                 'color': edge_color,
-                'type': 'line'  # Sigma.js edge type
+                'type': 'line' # Sigma.js edge type
             }
             
             sigma_edges.append(sigma_edge)
@@ -1599,9 +1599,9 @@ class KnowledgeGraph:
         data_signature = f"{layout}_{len(sigma_nodes)}_{len(sigma_edges)}_{max_nodes}"
         data_version = int(hashlib.md5(data_signature.encode()).hexdigest()[:8], 16)
         
-        logger.info(f"✅ Generated Sigma.js visualization data: {len(sigma_nodes)} nodes, {len(sigma_edges)} edges")
-        logger.info(f"📈 Edge processing completed: {edge_count} edges selected for Sigma.js visualization")
-        logger.info(f"🎯 Data version: {data_version}")
+        logger.info(f" Generated Sigma.js visualization data: {len(sigma_nodes)} nodes, {len(sigma_edges)} edges")
+        logger.info(f" Edge processing completed: {edge_count} edges selected for Sigma.js visualization")
+        logger.info(f" Data version: {data_version}")
         
         return {
             'nodes': sigma_nodes,
@@ -1623,13 +1623,13 @@ class KnowledgeGraph:
             'coordinates': self._node_positions,
             'total_nodes': len(self._node_positions),
             'computed_timestamp': str(pd.Timestamp.now()),
-            'layout_type': 'umap_gpu_optimized'  # or whatever layout was used
+            'layout_type': 'umap_gpu_optimized' # or whatever layout was used
         }
         
         with open(filepath, 'w') as f:
             json.dump(coordinate_data, f, indent=2, default=str)
         
-        logger.info(f"📁 Exported {len(self._node_positions)} node coordinates to {filepath}")
+        logger.info(f" Exported {len(self._node_positions)} node coordinates to {filepath}")
     
     def import_node_coordinates(self, filepath: str) -> bool:
         """
@@ -1641,7 +1641,7 @@ class KnowledgeGraph:
                 coordinate_data = json.load(f)
             
             self._node_positions = coordinate_data.get('coordinates', {})
-            logger.info(f"📂 Imported {len(self._node_positions)} node coordinates from {filepath}")
+            logger.info(f" Imported {len(self._node_positions)} node coordinates from {filepath}")
             return True
             
         except Exception as e:
@@ -1670,32 +1670,32 @@ class KnowledgeGraph:
                 import cupy as cp_module
                 cp = cp_module
                 if cp.cuda.is_available():
-                    logger.info("✅ CuPy detected - GPU acceleration available")
+                    logger.info(" CuPy detected - GPU acceleration available")
                     try:
                         device_count = cp.cuda.runtime.getDeviceCount()
                         current_device = cp.cuda.get_device_id()
-                        logger.info(f"   - GPU Devices: {device_count}")
-                        logger.info(f"   - Current Device: {current_device}")
+                        logger.info(f" - GPU Devices: {device_count}")
+                        logger.info(f" - Current Device: {current_device}")
                     except Exception as e:
-                        logger.info(f"   - GPU info unavailable: {e}")
+                        logger.info(f" - GPU info unavailable: {e}")
                     
                     try:
                         import cuml
                         use_cuml = True
                         use_gpu = True
-                        logger.info("✅ cuML available - Full GPU acceleration enabled")
+                        logger.info(" cuML available - Full GPU acceleration enabled")
                     except ImportError:
-                        use_gpu = True  # Use CuPy for memory operations
-                        logger.info("⚡ Using CuPy optimization (cuML not available)")
+                        use_gpu = True # Use CuPy for memory operations
+                        logger.info(" Using CuPy optimization (cuML not available)")
                 else:
-                    logger.info("❌ CUDA not available on CuPy")
+                    logger.info(" CUDA not available on CuPy")
             except ImportError:
-                logger.info("❌ CuPy not available, using CPU UMAP")
+                logger.info(" CuPy not available, using CPU UMAP")
             except Exception as e:
-                logger.info(f"❌ CuPy initialization failed: {e}, using CPU UMAP")
+                logger.info(f" CuPy initialization failed: {e}, using CPU UMAP")
             
             # Extract embeddings for specified nodes only
-            logger.info(f"🔍 Processing embeddings for {len(node_ids)} visualization nodes...")
+            logger.info(f" Processing embeddings for {len(node_ids)} visualization nodes...")
             
             valid_nodes = []
             for node_id in node_ids:
@@ -1714,7 +1714,7 @@ class KnowledgeGraph:
             
             # Convert to numpy array with optimal dtype
             embeddings_array = np.array(embeddings, dtype=np.float32)
-            logger.info(f"📊 Collected {len(embeddings)} embeddings with shape {embeddings_array.shape}")
+            logger.info(f" Collected {len(embeddings)} embeddings with shape {embeddings_array.shape}")
             
             # Adaptive parameters for visualization performance
             n_nodes = len(embeddings)
@@ -1732,11 +1732,11 @@ class KnowledgeGraph:
                 min_dist = 0.1
                 spread = 1.0
             
-            logger.info(f"🎯 UMAP parameters: n_neighbors={n_neighbors}, min_dist={min_dist}, nodes={n_nodes}")
+            logger.info(f" UMAP parameters: n_neighbors={n_neighbors}, min_dist={min_dist}, nodes={n_nodes}")
             
             # GPU-accelerated computation
             if use_gpu and use_cuml:
-                logger.info("🚀 Using GPU-accelerated UMAP (cuML + CuPy)")
+                logger.info(" Using GPU-accelerated UMAP (cuML + CuPy)")
                 
                 # Move embeddings to GPU
                 embeddings_gpu = cp.asarray(embeddings_array)
@@ -1755,13 +1755,13 @@ class KnowledgeGraph:
                 )
                 
                 # Fit and transform on GPU
-                logger.info("⚡ Computing UMAP layout on GPU...")
+                logger.info(" Computing UMAP layout on GPU...")
                 positions_gpu = reducer.fit_transform(embeddings_gpu)
                 positions = cp.asnumpy(positions_gpu).astype(np.float64)
-                logger.info("✅ GPU UMAP computation completed")
+                logger.info(" GPU UMAP computation completed")
                 
             elif use_gpu and cp is not None:
-                logger.info("🔧 Using CuPy memory optimization with CPU UMAP")
+                logger.info(" Using CuPy memory optimization with CPU UMAP")
                 
                 # Use CuPy for memory operations
                 embeddings_gpu = cp.asarray(embeddings_array)
@@ -1792,12 +1792,12 @@ class KnowledgeGraph:
                     transform_queue_size=4.0
                 )
                 
-                logger.info("⚡ Computing UMAP layout with CuPy optimization...")
+                logger.info(" Computing UMAP layout with CuPy optimization...")
                 positions = reducer.fit_transform(embeddings_array_normalized)
-                logger.info("✅ CuPy-optimized UMAP computation completed")
+                logger.info(" CuPy-optimized UMAP computation completed")
                 
             else:
-                logger.info("💻 Using CPU UMAP with optimized parameters")
+                logger.info(" Using CPU UMAP with optimized parameters")
                 
                 reducer = umap.UMAP(
                     n_components=3 if use_3d else 2,
@@ -1818,9 +1818,9 @@ class KnowledgeGraph:
                     transform_queue_size=4.0
                 )
                 
-                logger.info("⚡ Computing UMAP layout on CPU...")
+                logger.info(" Computing UMAP layout on CPU...")
                 positions = reducer.fit_transform(embeddings_array)
-                logger.info("✅ CPU UMAP computation completed")
+                logger.info(" CPU UMAP computation completed")
             
             # Create position dictionary with explicit coordinates
             if use_3d:
@@ -1833,7 +1833,7 @@ class KnowledgeGraph:
             # Handle nodes without embeddings using spring layout
             missing_nodes = set(node_ids) - set(node_ids_with_embeddings)
             if missing_nodes:
-                logger.info(f"📍 Adding spring layout positions for {len(missing_nodes)} nodes without embeddings")
+                logger.info(f" Adding spring layout positions for {len(missing_nodes)} nodes without embeddings")
                 subgraph = self.graph.subgraph(missing_nodes)
                 if len(missing_nodes) > 0:
                     missing_pos = nx.spring_layout(subgraph, k=1, iterations=20)
@@ -1847,13 +1847,13 @@ class KnowledgeGraph:
             else:
                 gpu_mode = "CPU"
             
-            logger.info(f"🎉 UMAP layout complete: {len(pos)} nodes positioned using {gpu_mode}")
-            logger.info(f"📈 Layout dimensions: {'3D' if use_3d else '2D'}")
+            logger.info(f" UMAP layout complete: {len(pos)} nodes positioned using {gpu_mode}")
+            logger.info(f" Layout dimensions: {'3D' if use_3d else '2D'}")
             
             return pos
             
         except Exception as e:
-            logger.warning(f"❌ GPU UMAP layout failed: {e}. Falling back to spring layout.")
+            logger.warning(f" GPU UMAP layout failed: {e}. Falling back to spring layout.")
             # Fallback to spring layout
             subgraph = self.graph.subgraph(node_ids)
             return nx.spring_layout(subgraph, k=3, iterations=50)
@@ -1872,7 +1872,7 @@ class KnowledgeGraph:
         # Get neighbor information
         neighbors = list(self.graph.neighbors(node_id))
         neighbor_details = []
-        for neighbor_id in neighbors[:10]:  # Limit to first 10 neighbors
+        for neighbor_id in neighbors[:10]: # Limit to first 10 neighbors
             if neighbor_id in self.nodes:
                 neighbor = self.nodes[neighbor_id]
                 neighbor_details.append({
@@ -1915,7 +1915,7 @@ class KnowledgeGraph:
                 'total_neighbors': len(neighbors),
                 'neighbors': neighbor_details,
                 'total_edges': len(connected_edges),
-                'top_edges': connected_edges[:10]  # Top 10 most similar edges
+                'top_edges': connected_edges[:10] # Top 10 most similar edges
             },
             'position': self._node_positions.get(node_id) if hasattr(self, '_node_positions') else None,
             'metadata': {

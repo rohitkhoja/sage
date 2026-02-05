@@ -13,7 +13,7 @@ import json
 from .base_processor import BaseProcessor
 from .embedding_service import EmbeddingService
 from src.core.models import DocumentChunk, SourceInfo, ChunkType, ProcessingConfig
-from .data.stopwords_loader import ENGLISH_STOPWORDS
+from src.pipeline.data.stopwords_loader import ENGLISH_STOPWORDS
 
 
 class DocumentProcessor(BaseProcessor):

@@ -235,10 +235,10 @@ class Neo4jGraphClient:
                             # Check if nodes exist by trying to match them
                             check_query = cypher.replace("MERGE", "OPTIONAL MATCH").replace("MATCH", "OPTIONAL MATCH")
                             # This is approximate - we'll use a simpler approach
-                            pass  # Will handle differently
+                            pass # Will handle differently
                     
-                    if batch_num % 100 == 0:  # Log every 100 batches (200k edges)
-                        logger.debug(f"   Processed {total_processed:,} edges, created {total_created:,} relationships")
+                    if batch_num % 100 == 0: # Log every 100 batches (200k edges)
+                        logger.debug(f" Processed {total_processed:,} edges, created {total_created:,} relationships")
                     rows = []
                     current_batch_pairs = []
                     
@@ -252,9 +252,9 @@ class Neo4jGraphClient:
         
         # Log warning if many relationships weren't created (likely missing nodes)
         if total_processed > 0 and total_created < total_processed * 0.9:
-            logger.warning(f"⚠️  Only {total_created:,} out of {total_processed:,} relationships were created ({total_created/total_processed*100:.1f}%). Some nodes may be missing.")
+            logger.warning(f" Only {total_created:,} out of {total_processed:,} relationships were created ({total_created/total_processed*100:.1f}%). Some nodes may be missing.")
         
-        logger.debug(f"   Final: processed {total_processed:,}, created {total_created:,} relationships")
+        logger.debug(f" Final: processed {total_processed:,}, created {total_created:,} relationships")
         
         if return_failed:
             return total_created, failed_pairs
@@ -373,7 +373,7 @@ class Neo4jGraphClient:
                         if obj.get('type') == 'paper':
                             yield self._prepare_paper_node(obj)
             counts['paper'] = self.upsert_papers(_iter_papers())
-            logger.info(f"✅ Upserted {counts['paper']:,} Paper nodes")
+            logger.info(f" Upserted {counts['paper']:,} Paper nodes")
         
         # Load authors
         if 'author' in node_types:
@@ -385,7 +385,7 @@ class Neo4jGraphClient:
                         if obj.get('type') == 'author':
                             yield self._prepare_author_node(obj)
             counts['author'] = self.upsert_authors(_iter_authors())
-            logger.info(f"✅ Upserted {counts['author']:,} Author nodes")
+            logger.info(f" Upserted {counts['author']:,} Author nodes")
         
         # Load fields
         if 'field_of_study' in node_types:
@@ -397,7 +397,7 @@ class Neo4jGraphClient:
                         if obj.get('type') == 'field_of_study':
                             yield self._prepare_field_node(obj)
             counts['field_of_study'] = self.upsert_fields(_iter_fields())
-            logger.info(f"✅ Upserted {counts['field_of_study']:,} Field nodes")
+            logger.info(f" Upserted {counts['field_of_study']:,} Field nodes")
         
         # Load institutions
         if 'institution' in node_types:
@@ -409,9 +409,9 @@ class Neo4jGraphClient:
                         if obj.get('type') == 'institution':
                             yield self._prepare_institution_node(obj)
             counts['institution'] = self.upsert_institutions(_iter_institutions())
-            logger.info(f"✅ Upserted {counts['institution']:,} Institution nodes")
+            logger.info(f" Upserted {counts['institution']:,} Institution nodes")
         
-        logger.info(f"🎉 Node loading complete: {counts}")
+        logger.info(f" Node loading complete: {counts}")
         return counts
     
     def _detect_and_fix_edge_direction(self, src_id: int, tgt_id: int, expected_src_type: str, expected_tgt_type: str) -> Tuple[int, int]:
@@ -507,7 +507,7 @@ class Neo4jGraphClient:
         with open(edge_types_path, 'r') as f:
             edge_types = json.load(f)
         
-        logger.info(f"📊 Loaded {len(edge_types):,} edges from files")
+        logger.info(f" Loaded {len(edge_types):,} edges from files")
         
         # Group edges by type
         edge_groups = defaultdict(list)
@@ -531,7 +531,7 @@ class Neo4jGraphClient:
             src_type, relation, tgt_type = parts
             
             # Two-pass approach: Try original direction first, then flip failed ones
-            logger.info(f"   Pass 1: Attempting to create relationships with original edge directions...")
+            logger.info(f" Pass 1: Attempting to create relationships with original edge directions...")
             
             # First pass: Try all edges as-is
             first_pass_created = 0
@@ -544,17 +544,17 @@ class Neo4jGraphClient:
             elif edge_type_name == "author___affiliated_with___institution":
                 first_pass_created = self.upsert_affiliated_with(edge_list)
             
-            logger.info(f"   Pass 1: Created {first_pass_created:,} out of {len(edge_list):,} relationships")
+            logger.info(f" Pass 1: Created {first_pass_created:,} out of {len(edge_list):,} relationships")
             
             # If all created, we're done
             if first_pass_created == len(edge_list):
                 counts[edge_type_name] = first_pass_created
-                logger.info(f"✅ Created all {counts[edge_type_name]:,} relationships in first pass")
+                logger.info(f" Created all {counts[edge_type_name]:,} relationships in first pass")
                 continue
             
             # Second pass: Identify failed edges, flip them, and check if flipped version already exists
             failed_count = len(edge_list) - first_pass_created
-            logger.info(f"   Pass 2: Identifying {failed_count:,} failed edges, flipping and checking if they already exist...")
+            logger.info(f" Pass 2: Identifying {failed_count:,} failed edges, flipping and checking if they already exist...")
             
             # Check which edges failed and prepare flipped pairs
             # But also check if the flipped relationship already exists (from a different edge)
@@ -616,7 +616,7 @@ class Neo4jGraphClient:
                                     failed_pairs.append((record["tgt"], record["src"]))
                                 # If flipped exists, skip it (already created from a different edge)
             
-            logger.info(f"   Pass 2: Found {len(failed_pairs):,} edges that need to be created (flipped and don't exist yet)...")
+            logger.info(f" Pass 2: Found {len(failed_pairs):,} edges that need to be created (flipped and don't exist yet)...")
             
             # Try flipped pairs that don't already exist
             second_pass_created = 0
@@ -630,23 +630,23 @@ class Neo4jGraphClient:
                 elif edge_type_name == "author___affiliated_with___institution":
                     second_pass_created = self.upsert_affiliated_with(failed_pairs)
             
-            logger.info(f"   Pass 2: Created {second_pass_created:,} additional relationships")
+            logger.info(f" Pass 2: Created {second_pass_created:,} additional relationships")
             
             total_created = first_pass_created + second_pass_created
             counts[edge_type_name] = total_created
             
             if edge_type_name == "author___writes___paper":
-                logger.info(f"✅ Created {total_created:,} AUTHORED relationships total (Pass 1: {first_pass_created:,}, Pass 2: {second_pass_created:,})")
+                logger.info(f" Created {total_created:,} AUTHORED relationships total (Pass 1: {first_pass_created:,}, Pass 2: {second_pass_created:,})")
             elif edge_type_name == "paper___cites___paper":
-                logger.info(f"✅ Created {total_created:,} CITES relationships total (Pass 1: {first_pass_created:,}, Pass 2: {second_pass_created:,})")
+                logger.info(f" Created {total_created:,} CITES relationships total (Pass 1: {first_pass_created:,}, Pass 2: {second_pass_created:,})")
             elif edge_type_name == "paper___has_topic___field_of_study":
-                logger.info(f"✅ Created {total_created:,} HAS_FIELD relationships total (Pass 1: {first_pass_created:,}, Pass 2: {second_pass_created:,})")
+                logger.info(f" Created {total_created:,} HAS_FIELD relationships total (Pass 1: {first_pass_created:,}, Pass 2: {second_pass_created:,})")
             elif edge_type_name == "author___affiliated_with___institution":
-                logger.info(f"✅ Created {total_created:,} AFFILIATED_WITH relationships total (Pass 1: {first_pass_created:,}, Pass 2: {second_pass_created:,})")
+                logger.info(f" Created {total_created:,} AFFILIATED_WITH relationships total (Pass 1: {first_pass_created:,}, Pass 2: {second_pass_created:,})")
             else:
                 logger.warning(f"Unknown edge type: {edge_type_name}")
         
-        logger.info(f"🎉 Edge loading complete: {counts}")
+        logger.info(f" Edge loading complete: {counts}")
         return counts
 
 

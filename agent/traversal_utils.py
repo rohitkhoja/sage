@@ -288,7 +288,7 @@ def main():
     """Test the traversal utilities"""
     from graph_loader import MAGGraphLoader
     
-    logger.info("🧬 Testing MAG Traversal Utilities")
+    logger.info(" Testing MAG Traversal Utilities")
     
     try:
         # Load graph first
@@ -299,10 +299,10 @@ def main():
         # Create traversal utils
         traversal = MAGTraversalUtils(graph, loader)
         
-        logger.info("✅ Traversal utilities initialized successfully!")
+        logger.info(" Traversal utilities initialized successfully!")
         
         # Test some traversals (using example node_index from the data)
-        test_paper_node_index = 274683  # From the example in the markdown
+        test_paper_node_index = 274683 # From the example in the markdown
         
         # Test finding authors of a paper
         authors = traversal.authors_of_paper(test_paper_node_index)
@@ -310,7 +310,7 @@ def main():
         
         if authors:
             # Test finding papers by authors
-            papers = traversal.papers_by_author(authors[:2])  # Limit to first 2 authors
+            papers = traversal.papers_by_author(authors[:2]) # Limit to first 2 authors
             logger.info(f"Papers by first 2 authors: {len(papers)} found")
         
         # Test year range query
@@ -320,7 +320,7 @@ def main():
         return True
         
     except Exception as e:
-        logger.error(f"❌ Failed to test traversal utilities: {e}")
+        logger.error(f" Failed to test traversal utilities: {e}")
         import traceback
         traceback.print_exc()
         return False

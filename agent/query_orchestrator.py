@@ -40,23 +40,23 @@ class MAGQueryOrchestrator:
                 candidate = None
             model_path = candidate if candidate else local_model_root
             self.encoder = SentenceTransformer(model_path)
-            logger.info(f"✅ Sentence transformer loaded from local path: {model_path}")
+            logger.info(f" Sentence transformer loaded from local path: {model_path}")
         except Exception as e_local:
-            logger.warning(f"⚠️ Local model load failed: {e_local}")
+            logger.warning(f" Local model load failed: {e_local}")
             # Try to repair local cache by removing invalid folder and re-downloading
             try:
                 import shutil
                 if os.path.isdir(local_model_root):
-                    logger.info(f"🧹 Removing invalid local model directory: {local_model_root}")
+                    logger.info(f" Removing invalid local model directory: {local_model_root}")
                     shutil.rmtree(local_model_root, ignore_errors=True)
             except Exception as e_rm:
-                logger.warning(f"⚠️ Failed to remove local model dir: {e_rm}")
+                logger.warning(f" Failed to remove local model dir: {e_rm}")
             # Attempt fresh download into cache
             try:
                 self.encoder = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
-                logger.info("✅ Sentence transformer re-downloaded from Hugging Face")
+                logger.info(" Sentence transformer re-downloaded from Hugging Face")
             except Exception as e_hf:
-                logger.error(f"❌ Failed to load sentence transformer from HF: {e_hf}")
+                logger.error(f" Failed to load sentence transformer from HF: {e_hf}")
                 self.encoder = None
         
         # Query step templates
@@ -89,13 +89,13 @@ class MAGQueryOrchestrator:
     def _find_paper_by_title(self, query_text: str) -> Dict[str, Any]:
         """Find papers by title similarity"""
         try:
-            logger.info(f"🔍 _find_paper_by_title called with query='{query_text}'")
+            logger.info(f" _find_paper_by_title called with query='{query_text}'")
             query_embedding = self.encode_query(query_text)
-            logger.info(f"📊 Query embedding shape: {query_embedding.shape}")
+            logger.info(f" Query embedding shape: {query_embedding.shape}")
             
             results = self.hnsw_manager.search('original_title_embedding', query_embedding)
-            logger.info(f"🎯 HNSW search returned {len(results)} results")
-            logger.info(f"📋 First HNSW result: {results[0] if results else 'No results'}")
+            logger.info(f" HNSW search returned {len(results)} results")
+            logger.info(f" First HNSW result: {results[0] if results else 'No results'}")
             
             # HNSW already returns metadata from Neo4j, just reformat for backward compatibility
             enriched_results = []
@@ -106,7 +106,7 @@ class MAGQueryOrchestrator:
                     enriched_result['node_data'] = result['metadata']
                 enriched_results.append(enriched_result)
             
-            logger.info(f"🎉 Final enriched results count: {len(enriched_results)}")
+            logger.info(f" Final enriched results count: {len(enriched_results)}")
             return {
                 'step_name': 'find_paper_by_title',
                 'query_text': query_text,
@@ -200,13 +200,13 @@ class MAGQueryOrchestrator:
     def _find_institution_by_name(self, institution_name: str) -> Dict[str, Any]:
         """Find institutions by name similarity"""
         try:
-            logger.info(f"🔍 _find_institution_by_name called with query='{institution_name}'")
+            logger.info(f" _find_institution_by_name called with query='{institution_name}'")
             query_embedding = self.encode_query(institution_name)
-            logger.info(f"📊 Query embedding shape: {query_embedding.shape}")
+            logger.info(f" Query embedding shape: {query_embedding.shape}")
             
             results = self.hnsw_manager.search('institution_embedding', query_embedding)
-            logger.info(f"🎯 HNSW search returned {len(results)} results")
-            logger.info(f"📋 First HNSW result: {results[0] if results else 'No results'}")
+            logger.info(f" HNSW search returned {len(results)} results")
+            logger.info(f" First HNSW result: {results[0] if results else 'No results'}")
             
             # HNSW already returns metadata from Neo4j
             enriched_results = []
@@ -216,7 +216,7 @@ class MAGQueryOrchestrator:
                     enriched_result['node_data'] = result['metadata']
                 enriched_results.append(enriched_result)
             
-            logger.info(f"🎉 Final enriched results count: {len(enriched_results)}")
+            logger.info(f" Final enriched results count: {len(enriched_results)}")
             return {
                 'step_name': 'find_institution_by_name',
                 'query_text': institution_name,
@@ -231,24 +231,24 @@ class MAGQueryOrchestrator:
     def _find_field_by_name(self, field_name: str) -> Dict[str, Any]:
         """Find fields of study by name similarity"""
         try:
-            logger.info(f"🔍 _find_field_by_name called with query='{field_name}'")
+            logger.info(f" _find_field_by_name called with query='{field_name}'")
             query_embedding = self.encode_query(field_name)
-            logger.info(f"📊 Query embedding shape: {query_embedding.shape}")
+            logger.info(f" Query embedding shape: {query_embedding.shape}")
             
             # Use only field_display_name_embedding
             if not self.hnsw_manager.is_available('field_display_name_embedding'):
-                logger.warning("⚠️  Field display name embedding not available")
+                logger.warning(" Field display name embedding not available")
                 return {'step_name': 'find_field_by_name', 'error': 'Field display name embedding not available', 'results': []}
             
-            logger.info(f"🎯 Searching with field_display_name_embedding")
+            logger.info(f" Searching with field_display_name_embedding")
             results = self.hnsw_manager.search('field_display_name_embedding', query_embedding)
-            logger.info(f"🎯 HNSW search returned {len(results)} results")
+            logger.info(f" HNSW search returned {len(results)} results")
             
             if not results:
-                logger.warning("⚠️  No field results found")
+                logger.warning(" No field results found")
                 return {'step_name': 'find_field_by_name', 'error': 'No field results found', 'results': []}
             
-            logger.info(f"📋 First HNSW result: {results[0] if results else 'No results'}")
+            logger.info(f" First HNSW result: {results[0] if results else 'No results'}")
             
             # HNSW already returns metadata from Neo4j
             enriched_results = []
@@ -258,7 +258,7 @@ class MAGQueryOrchestrator:
                     enriched_result['node_data'] = result['metadata']
                 enriched_results.append(enriched_result)
             
-            logger.info(f"🎉 Final enriched results count: {len(enriched_results)}")
+            logger.info(f" Final enriched results count: {len(enriched_results)}")
             return {
                 'step_name': 'find_field_by_name',
                 'query_text': field_name,
@@ -273,24 +273,24 @@ class MAGQueryOrchestrator:
     def _find_paper_by_abstract_duplicate(self, abstract_query: str) -> Dict[str, Any]:
         """Find papers by abstract similarity"""
         try:
-            logger.info(f"🔍 _find_paper_by_abstract called with query='{abstract_query}'")
+            logger.info(f" _find_paper_by_abstract called with query='{abstract_query}'")
             query_embedding = self.encode_query(abstract_query)
-            logger.info(f"📊 Query embedding shape: {query_embedding.shape}")
+            logger.info(f" Query embedding shape: {query_embedding.shape}")
             
             # Use abstract_embedding
             if not self.hnsw_manager.is_available('abstract_embedding'):
-                logger.warning("⚠️  Abstract embedding not available")
+                logger.warning(" Abstract embedding not available")
                 return {'step_name': 'find_paper_by_abstract', 'error': 'Abstract embedding not available', 'results': []}
             
-            logger.info(f"🎯 Searching with abstract_embedding")
+            logger.info(f" Searching with abstract_embedding")
             results = self.hnsw_manager.search('abstract_embedding', query_embedding)
-            logger.info(f"🎯 HNSW search returned {len(results)} results")
+            logger.info(f" HNSW search returned {len(results)} results")
             
             if not results:
-                logger.warning("⚠️  No abstract results found")
+                logger.warning(" No abstract results found")
                 return {'step_name': 'find_paper_by_abstract', 'error': 'No abstract results found', 'results': []}
             
-            logger.info(f"📋 First HNSW result: {results[0] if results else 'No results'}")
+            logger.info(f" First HNSW result: {results[0] if results else 'No results'}")
             
             # HNSW already returns metadata from Neo4j
             enriched_results = []
@@ -300,7 +300,7 @@ class MAGQueryOrchestrator:
                     enriched_result['node_data'] = result['metadata']
                 enriched_results.append(enriched_result)
             
-            logger.info(f"🎉 Final enriched results count: {len(enriched_results)}")
+            logger.info(f" Final enriched results count: {len(enriched_results)}")
             return {
                 'step_name': 'find_paper_by_abstract',
                 'query_text': abstract_query,
@@ -651,7 +651,7 @@ def main():
     from traversal_utils import MAGTraversalUtils
     from graph_loader import MAGGraphLoader
     
-    logger.info("🧬 Testing MAG Query Orchestrator")
+    logger.info(" Testing MAG Query Orchestrator")
     
     try:
         # Initialize components
@@ -665,7 +665,7 @@ def main():
         
         orchestrator = MAGQueryOrchestrator(hnsw_manager, traversal_utils)
         
-        logger.info("✅ Query orchestrator initialized successfully!")
+        logger.info(" Query orchestrator initialized successfully!")
         
         # Test simple query
         test_query = "papers about machine learning from 2010 to 2020"
@@ -679,7 +679,7 @@ def main():
         return True
         
     except Exception as e:
-        logger.error(f"❌ Failed to test query orchestrator: {e}")
+        logger.error(f" Failed to test query orchestrator: {e}")
         import traceback
         traceback.print_exc()
         return False

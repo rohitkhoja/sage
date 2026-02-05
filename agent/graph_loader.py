@@ -27,7 +27,7 @@ class MAGGraphLoader:
         self.node_index_to_global: Dict[int, int] = {}
         self.global_to_node_index: Dict[int, int] = {}
         self.node_index_to_type: Dict[int, str] = {}
-        self.type_to_local: Dict[str, Dict[int, int]] = defaultdict(dict)  # {type: {node_index: local_idx}}
+        self.type_to_local: Dict[str, Dict[int, int]] = defaultdict(dict) # {type: {node_index: local_idx}}
         
         # Node attributes cache (node_index -> attributes)
         self.node_attrs: Dict[int, Dict[str, Any]] = {}
@@ -42,7 +42,7 @@ class MAGGraphLoader:
     
     def load_node_mappings(self):
         """Load node type mappings and create MAG Object ID mappings"""
-        logger.info("🔍 Loading node type mappings...")
+        logger.info(" Loading node type mappings...")
         
         # Load node type dictionary
         with open(self.processed_dir / 'node_type_dict.json', 'r') as f:
@@ -52,39 +52,39 @@ class MAGGraphLoader:
         with open(self.processed_dir / 'node_types.json', 'r') as f:
             node_types = json.load(f)
         
-        logger.info(f"📊 Loaded {len(node_types):,} node types")
+        logger.info(f" Loaded {len(node_types):,} node types")
         
         # Create MAG Object ID mappings
-        current_local_indices = {str(i): 0 for i in range(4)}  # 4 node types
+        current_local_indices = {str(i): 0 for i in range(4)} # 4 node types
         
         for global_idx, type_code in enumerate(node_types):
             node_type = node_type_dict[str(type_code)]
             
             # Load node attributes to get node_index
             # We'll do this in load_node_attributes, for now just track type
-            self.node_index_to_type[global_idx] = node_type  # Temporary: using global_idx as placeholder
+            self.node_index_to_type[global_idx] = node_type # Temporary: using global_idx as placeholder
             self.stats['node_type_counts'][node_type] += 1
         
-        logger.info("✅ Node type mappings loaded")
+        logger.info(" Node type mappings loaded")
     
     def load_node_attributes(self):
         """Load node attributes from node_info.jsonl and create node_index mappings"""
-        logger.info("📖 Loading node attributes from node_info.jsonl...")
+        logger.info(" Loading node attributes from node_info.jsonl...")
         
         node_info_path = self.processed_dir / 'node_info.jsonl'
         if not node_info_path.exists():
             raise FileNotFoundError(f"node_info.jsonl not found at {node_info_path}")
         
-        current_local_indices = {str(i): 0 for i in range(4)}  # 4 node types
+        current_local_indices = {str(i): 0 for i in range(4)} # 4 node types
         
         with open(node_info_path, 'r') as f:
             for line_num, line in enumerate(f):
                 if line_num % 100000 == 0:
-                    logger.info(f"  Processed {line_num:,} nodes...")
+                    logger.info(f" Processed {line_num:,} nodes...")
                 
                 node_data = json.loads(line.strip())
                 global_idx = node_data['node_index']
-                node_index = node_data.get('node_index', global_idx)  # Use node_index from data
+                node_index = node_data.get('node_index', global_idx) # Use node_index from data
                 node_type = node_data.get('type', 'unknown')
                 
                 # Update mappings
@@ -102,8 +102,8 @@ class MAGGraphLoader:
                 self.node_attrs[node_index] = node_data
                 self.stats['total_nodes'] += 1
         
-        logger.info(f"✅ Loaded {self.stats['total_nodes']:,} node attributes")
-        logger.info(f"📊 Node type distribution: {dict(self.stats['node_type_counts'])}")
+        logger.info(f" Loaded {self.stats['total_nodes']:,} node attributes")
+        logger.info(f" Node type distribution: {dict(self.stats['node_type_counts'])}")
     
     def _get_type_code(self, node_type: str) -> int:
         """Get numeric type code for node type"""
@@ -117,7 +117,7 @@ class MAGGraphLoader:
     
     def load_edge_data(self):
         """Load edge data and create heterogeneous edge indices"""
-        logger.info("🔗 Loading edge data...")
+        logger.info(" Loading edge data...")
         
         # Load edge type dictionary
         with open(self.processed_dir / 'edge_type_dict.json', 'r') as f:
@@ -130,7 +130,7 @@ class MAGGraphLoader:
         with open(self.processed_dir / 'edge_types.json', 'r') as f:
             edge_types = json.load(f)
         
-        logger.info(f"📊 Loaded {len(edge_types):,} edges")
+        logger.info(f" Loaded {len(edge_types):,} edges")
         
         # Group edges by type and create edge indices for each relation
         edge_groups = defaultdict(list)
@@ -175,20 +175,20 @@ class MAGGraphLoader:
                     relation_key = (src_type, relation, tgt_type)
                     self.data[relation_key].edge_index = edge_index_tensor
                     
-                    logger.info(f"  ✅ {edge_type}: {len(src_local):,} edges")
+                    logger.info(f" {edge_type}: {len(src_local):,} edges")
         
         self.stats['total_edges'] = sum(self.stats['edge_type_counts'].values())
-        logger.info(f"✅ Loaded {self.stats['total_edges']:,} total edges")
+        logger.info(f" Loaded {self.stats['total_edges']:,} total edges")
     
     def set_node_counts(self):
         """Set node counts for each type in HeteroData"""
         for node_type, local_indices in self.type_to_local.items():
             self.data[node_type].num_nodes = len(local_indices)
-            logger.info(f"  📊 {node_type}: {len(local_indices):,} nodes")
+            logger.info(f" {node_type}: {len(local_indices):,} nodes")
     
     def build_graph(self):
         """Build the complete heterogeneous graph"""
-        logger.info("🚀 Building MAG heterogeneous graph...")
+        logger.info(" Building MAG heterogeneous graph...")
         
         # Load all components
         self.load_node_mappings()
@@ -196,8 +196,8 @@ class MAGGraphLoader:
         self.load_edge_data()
         self.set_node_counts()
         
-        logger.info("✅ Graph construction complete!")
-        logger.info(f"📊 Final stats: {self.stats['total_nodes']:,} nodes, {self.stats['total_edges']:,} edges")
+        logger.info(" Graph construction complete!")
+        logger.info(f" Final stats: {self.stats['total_nodes']:,} nodes, {self.stats['total_edges']:,} edges")
         
         return self.data
     
@@ -238,7 +238,7 @@ class MAGGraphLoader:
         with open(output_path / 'id_mappings.json', 'w') as f:
             json.dump(mappings, f, indent=2)
         
-        logger.info(f"💾 Saved ID mappings to {output_path / 'id_mappings.json'}")
+        logger.info(f" Saved ID mappings to {output_path / 'id_mappings.json'}")
     
     def get_stats(self) -> Dict[str, Any]:
         """Get graph statistics"""
@@ -249,14 +249,14 @@ def main():
     """Test the graph loader"""
     processed_dir = "/shared/khoja/CogComp/datasets/MAG/processed"
     
-    logger.info("🧬 Testing MAG Graph Loader")
+    logger.info(" Testing MAG Graph Loader")
     
     try:
         loader = MAGGraphLoader(processed_dir)
         graph = loader.build_graph()
         
-        logger.info("✅ Graph loaded successfully!")
-        logger.info(f"📊 Graph info: {graph}")
+        logger.info(" Graph loaded successfully!")
+        logger.info(f" Graph info: {graph}")
         
         # Save mappings
         loader.save_id_mappings("/shared/khoja/CogComp/agent/id_maps")
@@ -264,7 +264,7 @@ def main():
         return True
         
     except Exception as e:
-        logger.error(f"❌ Failed to load graph: {e}")
+        logger.error(f" Failed to load graph: {e}")
         import traceback
         traceback.print_exc()
         return False

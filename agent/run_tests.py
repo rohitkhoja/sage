@@ -13,24 +13,24 @@ sys.path.insert(0, str(Path(__file__).parent))
 
 def run_component_test(component_name: str, test_function):
     """Run a single component test"""
-    logger.info(f"🧪 Testing {component_name}...")
+    logger.info(f" Testing {component_name}...")
     try:
         success = test_function()
         if success:
-            logger.info(f"✅ {component_name} test passed")
+            logger.info(f" {component_name} test passed")
             return True
         else:
-            logger.error(f"❌ {component_name} test failed")
+            logger.error(f" {component_name} test failed")
             return False
     except Exception as e:
-        logger.error(f"❌ {component_name} test error: {e}")
+        logger.error(f" {component_name} test error: {e}")
         import traceback
         traceback.print_exc()
         return False
 
 def main():
     """Run individual component tests"""
-    logger.info("🧪 Running MAG Agent Component Tests")
+    logger.info(" Running MAG Agent Component Tests")
     logger.info("=" * 50)
     
     test_results = {}
@@ -61,23 +61,23 @@ def main():
     
     # Print summary
     logger.info("\n" + "=" * 50)
-    logger.info("📊 TEST SUMMARY")
+    logger.info(" TEST SUMMARY")
     logger.info("=" * 50)
     
     passed = sum(1 for result in test_results.values() if result)
     total = len(test_results)
     
     for component, result in test_results.items():
-        status = "✅ PASSED" if result else "❌ FAILED"
+        status = " PASSED" if result else " FAILED"
         logger.info(f"{component}: {status}")
     
     logger.info(f"\nOverall: {passed}/{total} components passed")
     
     if passed == total:
-        logger.info("🎉 All component tests passed!")
+        logger.info(" All component tests passed!")
         return True
     else:
-        logger.error("❌ Some component tests failed!")
+        logger.error(" Some component tests failed!")
         return False
 
 if __name__ == "__main__":

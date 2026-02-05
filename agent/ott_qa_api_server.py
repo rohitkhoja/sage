@@ -4,7 +4,7 @@ OTT-QA API Server
 
 Provides REST API endpoints for:
 - HNSW semantic search
-- BM25 keyword search  
+- BM25 keyword search 
 - Hybrid search (HNSW + BM25)
 - Graph neighbor lookup
 - Chunk content retrieval
@@ -36,9 +36,9 @@ TABLE_CHUNKS_FILE = OUTPUT_DIR / "full_pipeline" / "table_chunks_with_metadata.j
 app = Flask(__name__)
 
 # Global state
-chunks_data: Dict[str, dict] = {}  # chunk_id -> chunk data
-embeddings: Dict[str, np.ndarray] = {}  # chunk_id -> embedding
-bm25_texts: Dict[str, str] = {}  # chunk_id -> BM25 text
+chunks_data: Dict[str, dict] = {} # chunk_id -> chunk data
+embeddings: Dict[str, np.ndarray] = {} # chunk_id -> embedding
+bm25_texts: Dict[str, str] = {} # chunk_id -> BM25 text
 hnsw_index = None
 bm25_index = None
 neighbor_graph: Dict[str, Set[str]] = {}

@@ -201,7 +201,7 @@ class ChunkCache:
             "summary": chunk.summary,
             "embedding": chunk.embedding,
             "merged_sentence_count": chunk.merged_sentence_count,
-            "chunk_type": "document"  # For type identification
+            "chunk_type": "document" # For type identification
         }
     
     def _dict_to_document_chunk(self, data: Dict[str, Any]) -> DocumentChunk:
@@ -298,7 +298,7 @@ class ParallelDocumentProcessor:
         self.device = f"cuda:{gpu_id}"
         self.model_name = model_name
         self.cache_dir = cache_dir or f"output/chunks_cache_gpu_{gpu_id}"
-        self._cache = None  # Will be initialized lazily
+        self._cache = None # Will be initialized lazily
         
         # Set GPU for this process
         torch.cuda.set_device(gpu_id)
@@ -308,7 +308,7 @@ class ParallelDocumentProcessor:
         self.model = SentenceTransformer(model_name, device=self.device)
         
         # Enable mixed precision for faster inference
-        self.model.half()  # Use FP16 for speed
+        self.model.half() # Use FP16 for speed
         
         # Performance tracking
         self.processing_stats = {
@@ -338,7 +338,7 @@ class ParallelDocumentProcessor:
         if batch_size is None:
             # Auto-determine batch size based on GPU memory
             gpu_memory_gb = torch.cuda.get_device_properties(self.gpu_id).total_memory / 1e9
-            batch_size = min(64, max(16, int(gpu_memory_gb * 8)))  # Heuristic
+            batch_size = min(64, max(16, int(gpu_memory_gb * 8))) # Heuristic
         
         results = {
             "processed_chunks": [],
@@ -531,12 +531,6 @@ class ParallelDocumentProcessor:
         """Split text into sentences using proper regex pattern with smart merging for short sentences"""
         import re
         
-        # DEBUG: Check if this is being called from _process_single_document debugging context
-        import inspect
-        calling_function = inspect.currentframe().f_back.f_code.co_name
-        is_debug_context = calling_function == "_process_single_document"
-        
-        
         # Use the same pattern as document processor for consistency
         sentences = re.split(r'(?<=[.?!])\s+', text)
         
@@ -545,7 +539,7 @@ class ParallelDocumentProcessor:
         cleaned_sentences = []
         for sentence in sentences:
             sentence = sentence.strip()
-            if sentence:  # Only add non-empty sentences
+            if sentence: # Only add non-empty sentences
                 cleaned_sentences.append(sentence)
         
         if not cleaned_sentences:
@@ -564,7 +558,7 @@ class ParallelDocumentProcessor:
                     next_sentence = cleaned_sentences[i + 1]
                     merged_sentence = current_sentence + " " + next_sentence
                     merged_sentences.append(merged_sentence)
-                    i += 2  # Skip the next sentence since we merged it
+                    i += 2 # Skip the next sentence since we merged it
                 elif merged_sentences:
                     # Last sentence is short, merge with previous sentence
                     previous_sentence = merged_sentences.pop()
@@ -689,7 +683,7 @@ class ParallelDocumentProcessor:
         # Add remaining sentences as final chunk
         if start_index < len(single_sentences_list):
             chunk = ' '.join(single_sentences_list[start_index:])
-            chunks.append(chunk)        
+            chunks.append(chunk) 
         logger.info(f"Created {len(chunks)} initial chunks from {len(single_sentences_list)} sentences")
         
         
@@ -735,7 +729,7 @@ class ParallelDocumentProcessor:
             for i, chunk in enumerate(processed_chunks):
                 chunk_embeddings[chunk] = embeddings[i]
         
-        while changes_made and iteration < 2:  # Limit iterations to prevent infinite loops
+        while changes_made and iteration < 2: # Limit iterations to prevent infinite loops
             changes_made = False
             iteration += 1
             new_chunks = []
@@ -759,7 +753,7 @@ class ParallelDocumentProcessor:
                             # Get the target chunk content from new_chunks (already processed)
                             target_chunk_content = new_chunks[merge_target]
                             merged_content = target_chunk_content + " " + current_chunk
-                            new_chunks[merge_target] = merged_content  # Update the target chunk in place
+                            new_chunks[merge_target] = merged_content # Update the target chunk in place
                             # Compute embedding for merged content with stopword removal
                             cleaned_merged_content = self._remove_stopwords_from_content(merged_content)
                             merged_embedding = self._compute_embeddings_batch([cleaned_merged_content], batch_size)[0]
@@ -778,7 +772,7 @@ class ParallelDocumentProcessor:
                             cleaned_merged_content = self._remove_stopwords_from_content(merged_content)
                             merged_embedding = self._compute_embeddings_batch([cleaned_merged_content], batch_size)[0]
                             new_embeddings[merged_content] = merged_embedding
-                            i += 1  # Skip the next chunk as it's been merged
+                            i += 1 # Skip the next chunk as it's been merged
                             logger.info(f"Merged small chunk ({len(current_sentences)} sentences) with next chunk")
                         changes_made = True
                     else:
@@ -837,7 +831,7 @@ class ParallelDocumentProcessor:
         current_embedding = chunk_embeddings.get(current_chunk)
         
         if current_embedding is None:
-            return None  # Can't compute similarity without embedding
+            return None # Can't compute similarity without embedding
         
         best_similarity = -1
         best_target = None
@@ -853,7 +847,7 @@ class ParallelDocumentProcessor:
                         best_similarity = similarity
                         best_target = chunk_index - 1
                 except Exception as e:
-                    pass  # Continue if similarity computation fails
+                    pass # Continue if similarity computation fails
         
         # Check next chunk (use original_chunks since it hasn't been processed yet)
         if chunk_index < len(original_chunks) - 1:
@@ -866,7 +860,7 @@ class ParallelDocumentProcessor:
                         best_similarity = similarity
                         best_target = chunk_index + 1
                 except Exception as e:
-                    pass  # Continue if similarity computation fails
+                    pass # Continue if similarity computation fails
         
         return best_target
 
@@ -886,7 +880,7 @@ class ParallelDocumentProcessor:
         current_embedding = chunk_embeddings.get(current_chunk)
         
         if current_embedding is None:
-            return None  # Can't compute similarity without embedding
+            return None # Can't compute similarity without embedding
         
         best_similarity = -1
         best_target = None
@@ -902,7 +896,7 @@ class ParallelDocumentProcessor:
                         best_similarity = similarity
                         best_target = chunk_index - 1
                 except Exception as e:
-                    pass  # Continue if similarity computation fails
+                    pass # Continue if similarity computation fails
         
         # Check next chunk
         if chunk_index < len(chunks) - 1:
@@ -915,7 +909,7 @@ class ParallelDocumentProcessor:
                         best_similarity = similarity
                         best_target = chunk_index + 1
                 except Exception as e:
-                    pass  # Continue if similarity computation fails
+                    pass # Continue if similarity computation fails
         
         return best_target
     
@@ -931,22 +925,22 @@ class ParallelDocumentProcessor:
         dataloader = DataLoader(
             dataset, 
             batch_size=batch_size,
-            num_workers=0,  # Use 0 to avoid forking issues with tokenizers
+            num_workers=0, # Use 0 to avoid forking issues with tokenizers
             pin_memory=True,
             shuffle=False
         )
         
         all_embeddings = []
         
-        with torch.no_grad(), torch.amp.autocast('cuda'):  # Mixed precision
+        with torch.no_grad(), torch.amp.autocast('cuda'): # Mixed precision
             for batch_texts in dataloader:
                 try:
                     embeddings = self.model.encode(
                         batch_texts,
                         convert_to_tensor=True,
                         show_progress_bar=False,
-                        batch_size=len(batch_texts),  # Process entire batch at once
-                        normalize_embeddings=True  # Normalize for better similarity computation
+                        batch_size=len(batch_texts), # Process entire batch at once
+                        normalize_embeddings=True # Normalize for better similarity computation
                     )
                     all_embeddings.append(embeddings.cpu().numpy())
                 
@@ -1008,7 +1002,7 @@ class ParallelDocumentProcessor:
         # Join back with spaces
         cleaned_content = ' '.join(filtered_words)
         
-        return cleaned_content if cleaned_content.strip() else text  # Fallback to original if empty
+        return cleaned_content if cleaned_content.strip() else text # Fallback to original if empty
 
 class DocumentProcessingOrchestrator:
     """Advanced orchestrator for parallel document processing across multiple GPUs"""
@@ -1109,7 +1103,7 @@ class DocumentProcessingOrchestrator:
         doc_complexities = []
         for doc in documents:
             content_length = len(doc.get("content", ""))
-            complexity = min(10, max(1, content_length // 1000))  # Scale 1-10
+            complexity = min(10, max(1, content_length // 1000)) # Scale 1-10
             doc_complexities.append(complexity)
         
         # Distribute documents to balance total complexity across GPUs
@@ -1162,7 +1156,7 @@ class DocumentProcessingOrchestrator:
             
             for worker_id, future in futures:
                 try:
-                    result = ray.get(future, timeout=0.1)  # Quick check
+                    result = ray.get(future, timeout=0.1) # Quick check
                     ready_futures.append((worker_id, result))
                     completed += 1
                 except ray.exceptions.GetTimeoutError:
@@ -1184,7 +1178,7 @@ class DocumentProcessingOrchestrator:
                 progress = (completed / total_tasks) * 100
                 logger.info(f"Processing progress: {progress:.1f}% ({completed}/{total_tasks})")
             
-            time.sleep(0.5)  # Brief pause to prevent busy waiting
+            time.sleep(0.5) # Brief pause to prevent busy waiting
         
         return results
     

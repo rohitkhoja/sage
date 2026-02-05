@@ -32,18 +32,18 @@ def create_sigma_dashboard(kg: 'KnowledgeGraph', port: int = 8050) -> dash.Dash:
     knowledge_graph = kg
     
     # Generate minimal visualization data optimized for Sigma.js format
-    logger.info("🚀 Initializing Sigma.js dashboard...")
-    logger.info(f"📊 Graph size: {len(knowledge_graph.nodes)} nodes, {len(knowledge_graph.edges)} edges")
-    logger.info("🧠 Generating minimal visualization data with GPU-accelerated UMAP...")
-    logger.info("⏳ This may take 30-60 seconds for large graphs...")
+    logger.info(" Initializing Sigma.js dashboard...")
+    logger.info(f" Graph size: {len(knowledge_graph.nodes)} nodes, {len(knowledge_graph.edges)} edges")
+    logger.info(" Generating minimal visualization data with GPU-accelerated UMAP...")
+    logger.info(" This may take 30-60 seconds for large graphs...")
     
     minimal_viz_data = knowledge_graph.generate_sigma_visualization_data(
         layout="umap",
         use_3d=False,
-        max_nodes=20000  # Sigma.js can handle more nodes than Plotly
+        max_nodes=20000 # Sigma.js can handle more nodes than Plotly
     )
-    logger.info(f"✅ Sigma.js data ready: {len(minimal_viz_data['nodes'])} nodes, {len(minimal_viz_data['edges'])} edges")
-    logger.info("🎨 Creating Dash application with Sigma.js...")
+    logger.info(f" Sigma.js data ready: {len(minimal_viz_data['nodes'])} nodes, {len(minimal_viz_data['edges'])} edges")
+    logger.info(" Creating Dash application with Sigma.js...")
     
     # Create app with enhanced configuration
     app = dash.Dash(
@@ -297,10 +297,10 @@ def create_sigma_dashboard(kg: 'KnowledgeGraph', port: int = 8050) -> dash.Dash:
                             dcc.Dropdown(
                                 id='layout-dropdown',
                                 options=[
-                                    {'label': '🧠 UMAP (GPU Accelerated)', 'value': 'umap'},
-                                    {'label': '🎯 Similarity Clustering', 'value': 'similarity'},
-                                    {'label': '🌸 Spring Layout', 'value': 'spring'},
-                                    {'label': '🔄 Circular Layout', 'value': 'circular'}
+                                    {'label': ' UMAP (GPU Accelerated)', 'value': 'umap'},
+                                    {'label': ' Similarity Clustering', 'value': 'similarity'},
+                                    {'label': ' Spring Layout', 'value': 'spring'},
+                                    {'label': ' Circular Layout', 'value': 'circular'}
                                 ],
                                 value='umap',
                                 className='form-select mb-3'
@@ -353,10 +353,10 @@ def create_sigma_dashboard(kg: 'KnowledgeGraph', port: int = 8050) -> dash.Dash:
                             
                             # Embedded controls
                             html.Div([
-                                html.Button("🔍+", id='sigma-zoom-in', title="Zoom In"),
-                                html.Button("🔍-", id='sigma-zoom-out', title="Zoom Out"),
-                                html.Button("🏠", id='sigma-reset-view', title="Reset View"),
-                                html.Button("📷", id='sigma-screenshot', title="Take Screenshot")
+                                html.Button("+", id='sigma-zoom-in', title="Zoom In"),
+                                html.Button("-", id='sigma-zoom-out', title="Zoom Out"),
+                                html.Button("", id='sigma-reset-view', title="Reset View"),
+                                html.Button("", id='sigma-screenshot', title="Take Screenshot")
                             ], className="sigma-controls")
                             
                         ], className="sigma-container")
@@ -403,13 +403,13 @@ def create_sigma_dashboard(kg: 'KnowledgeGraph', port: int = 8050) -> dash.Dash:
         ctx = callback_context
         if ctx.triggered and 'regenerate-button' in ctx.triggered[0]['prop_id']:
             # Regenerate layout
-            logger.info(f"🔄 Regenerating {layout} layout...")
+            logger.info(f" Regenerating {layout} layout...")
             minimal_viz_data = knowledge_graph.generate_sigma_visualization_data(
                 layout=layout,
                 use_3d=False,
                 max_nodes=20000
             )
-            logger.info(f"✅ Regenerated: {len(minimal_viz_data['nodes'])} nodes")
+            logger.info(f" Regenerated: {len(minimal_viz_data['nodes'])} nodes")
         
         # Create stats panel
         stats = minimal_viz_data['stats']
@@ -622,7 +622,7 @@ def create_sigma_dashboard(kg: 'KnowledgeGraph', port: int = 8050) -> dash.Dash:
                 const statusDiv = document.createElement('div');
                 statusDiv.id = 'sigma-status';
                 statusDiv.style.cssText = 'position: absolute; top: 50px; right: 10px; background: rgba(46, 204, 113, 0.9); color: white; padding: 5px 10px; border-radius: 4px; font-size: 12px; z-index: 1001;';
-                statusDiv.textContent = '✓ Nodes are clickable!';
+                statusDiv.textContent = ' Nodes are clickable!';
                 container.appendChild(statusDiv);
                 
                 // Remove status message after 3 seconds
@@ -706,7 +706,7 @@ def create_sigma_dashboard(kg: 'KnowledgeGraph', port: int = 8050) -> dash.Dash:
                     ], className="connection-item", 
                        style={'cursor': 'pointer'},
                        id={'type': 'search-result-node', 'index': node['id']})
-                    for node in matching_nodes[:10]  # Limit to first 10 results
+                    for node in matching_nodes[:10] # Limit to first 10 results
                 ])
             ], className="search-highlight")
         ]
@@ -827,9 +827,9 @@ def create_sigma_dashboard(kg: 'KnowledgeGraph', port: int = 8050) -> dash.Dash:
         prevent_initial_call=True
     )
     
-    logger.info("✅ Sigma.js dashboard application configured successfully")
-    logger.info("🌐 Ready to launch Sigma.js dashboard server...")
-    logger.info(f"📊 Dashboard ready with {len(minimal_viz_data['nodes'])} nodes and {len(minimal_viz_data['edges'])} edges")
+    logger.info(" Sigma.js dashboard application configured successfully")
+    logger.info(" Ready to launch Sigma.js dashboard server...")
+    logger.info(f" Dashboard ready with {len(minimal_viz_data['nodes'])} nodes and {len(minimal_viz_data['edges'])} edges")
     return app
 
 
@@ -837,15 +837,15 @@ def run_sigma_dashboard(knowledge_graph: 'KnowledgeGraph', port: int = 8050, deb
     """
     Run the high-performance Sigma.js dashboard for large graph visualization
     """
-    logger.info(f"🔧 Creating Sigma.js dashboard application...")
+    logger.info(f" Creating Sigma.js dashboard application...")
     app = create_sigma_dashboard(knowledge_graph, port)
     
-    logger.info(f"🚀 Starting High-Performance Sigma.js Dashboard Server")
-    logger.info(f"📊 Dashboard URL: http://127.0.0.1:{port}")
-    logger.info(f"⚡ WebGL-accelerated Sigma.js visualization ready")
+    logger.info(f" Starting High-Performance Sigma.js Dashboard Server")
+    logger.info(f" Dashboard URL: http://127.0.0.1:{port}")
+    logger.info(f" WebGL-accelerated Sigma.js visualization ready")
     
     try:
         app.run(debug=debug, port=port, host='127.0.0.1')
     except Exception as e:
-        logger.error(f"❌ Error starting Sigma.js dashboard server: {e}")
+        logger.error(f" Error starting Sigma.js dashboard server: {e}")
         raise 

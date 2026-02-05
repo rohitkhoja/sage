@@ -59,39 +59,39 @@ class FlexibleMAGAgent:
         """Load all components"""
         start_time = time.time()
         
-        logger.info("🚀 Loading Flexible MAG Agent components...")
+        logger.info(" Loading Flexible MAG Agent components...")
         
         try:
             # Initialize Neo4j traversal utilities first (for graph traversal)
-            logger.info("🔗 Initializing Neo4j traversal utilities...")
+            logger.info(" Initializing Neo4j traversal utilities...")
             import os
             from neo4j import GraphDatabase, basic_auth
             neo4j_uri = os.getenv("NEO4J_URI", "bolt://localhost:7687")
             neo4j_user = os.getenv("NEO4J_USER", "neo4j")
-            neo4j_password = os.getenv("NEO4J_PASSWORD", "neo4j123")  # Updated to match Neo4j password
+            neo4j_password = os.getenv("NEO4J_PASSWORD", "neo4j123") # Updated to match Neo4j password
             neo4j_db = os.getenv("NEO4J_DATABASE") or None
             driver = GraphDatabase.driver(neo4j_uri, auth=basic_auth(neo4j_user, neo4j_password))
             self.traversal_utils = Neo4jTraversalUtils(driver, database=neo4j_db)
-            logger.info("✅ Neo4j traversal utilities initialized")
+            logger.info(" Neo4j traversal utilities initialized")
             
             # Load minimal graph loader for HNSW (only node type mappings, not full attributes)
-            logger.info("📊 Loading node type mappings for HNSW indices...")
+            logger.info(" Loading node type mappings for HNSW indices...")
             self.graph_loader = MAGGraphLoader(self.processed_dir)
             # Only load node type mappings (lightweight), skip full attributes and graph building
             # Neo4j has all node attributes and handles graph traversal
             self.graph_loader.load_node_mappings()
             # Skip load_node_attributes() - it loads 1.8M nodes into memory
             # If metadata is needed, query Neo4j instead
-            logger.info("✅ Node type mappings loaded (lightweight)")
+            logger.info(" Node type mappings loaded (lightweight)")
             
             # Load HNSW indices (with Neo4j for metadata)
-            logger.info("🔍 Loading HNSW indices...")
+            logger.info(" Loading HNSW indices...")
             self.hnsw_manager = MAGHNSWManager(self.indices_dir, self.graph_loader, driver)
             self.hnsw_manager.load_all_indices()
-            logger.info("✅ HNSW indices loaded (metadata from Neo4j)")
+            logger.info(" HNSW indices loaded (metadata from Neo4j)")
             
             # Load sentence transformer (robust local + fallback strategy)
-            logger.info("🧠 Loading sentence transformer...")
+            logger.info(" Loading sentence transformer...")
             self.encoder = None
             local_model_root = "/shared/khoja/CogComp/models/sentence_transformers"
             snapshot_glob = "models--sentence-transformers--all-MiniLM-L6-v2/snapshots"
@@ -107,29 +107,29 @@ class FlexibleMAGAgent:
                     candidate = None
                 model_path = candidate if candidate else local_model_root
                 self.encoder = SentenceTransformer(model_path)
-                logger.info(f"✅ Sentence transformer loaded from local path: {model_path}")
+                logger.info(f" Sentence transformer loaded from local path: {model_path}")
             except Exception as e_local:
-                logger.warning(f"⚠️ Local model load failed: {e_local}")
+                logger.warning(f" Local model load failed: {e_local}")
                 # Try to repair local cache by removing invalid folder and re-downloading
                 try:
                     import shutil
                     if os.path.isdir(local_model_root):
-                        logger.info(f"🧹 Removing invalid local model directory: {local_model_root}")
+                        logger.info(f" Removing invalid local model directory: {local_model_root}")
                         shutil.rmtree(local_model_root, ignore_errors=True)
                 except Exception as e_rm:
-                    logger.warning(f"⚠️ Failed to remove local model dir: {e_rm}")
+                    logger.warning(f" Failed to remove local model dir: {e_rm}")
                 # Attempt fresh download into cache
                 try:
                     self.encoder = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
-                    logger.info("✅ Sentence transformer re-downloaded from Hugging Face")
+                    logger.info(" Sentence transformer re-downloaded from Hugging Face")
                 except Exception as e_hf:
-                    logger.error(f"❌ Failed to load sentence transformer from HF: {e_hf}")
+                    logger.error(f" Failed to load sentence transformer from HF: {e_hf}")
                     self.encoder = None
             
             self.is_loaded = True
             self.load_time = time.time() - start_time
             
-            logger.info(f"✅ Flexible MAG Agent loaded successfully in {self.load_time:.2f}s")
+            logger.info(f" Flexible MAG Agent loaded successfully in {self.load_time:.2f}s")
             
             # Save ID mappings
             self.graph_loader.save_id_mappings("/shared/khoja/CogComp/agent/id_maps")
@@ -137,7 +137,7 @@ class FlexibleMAGAgent:
             return True
             
         except Exception as e:
-            logger.error(f"❌ Failed to load Flexible MAG Agent: {e}")
+            logger.error(f" Failed to load Flexible MAG Agent: {e}")
             import traceback
             traceback.print_exc()
             return False
@@ -346,7 +346,7 @@ class FlexibleMAGAgent:
         
         start_time = time.time()
         
-        logger.info(f"🎯 Solving query: {query}")
+        logger.info(f" Solving query: {query}")
         
         try:
             # Get system information
@@ -355,7 +355,7 @@ class FlexibleMAGAgent:
             # Generate code based on query analysis
             generated_code = self._generate_code_for_query(query, system_info)
             
-            logger.info(f"📝 Generated code:\n{generated_code}")
+            logger.info(f" Generated code:\n{generated_code}")
             
             # Execute the generated code
             execution_result = self.execute_dynamic_code(generated_code)
@@ -728,7 +728,7 @@ sample_papers = all_papers[:sample_size]
 institution_related_papers = []
 for paper_id in sample_papers:
     authors = get_authors_of_paper(paper_id)
-    for author_id in authors[:3]:  # Check first 3 authors
+    for author_id in authors[:3]: # Check first 3 authors
         author_meta = get_author_metadata(author_id)
         if author_meta and 'institution' in str(author_meta).lower():
             if institution_part.lower() in str(author_meta).lower():
@@ -776,17 +776,17 @@ all_results = {{}}
 for paper_id in title_results:
     node_index = paper_id['node_index']
     score = paper_id.get('score', 0.0)
-    all_results[node_index] = all_results.get(node_index, 0) + score * 3  # Title gets 3x weight
+    all_results[node_index] = all_results.get(node_index, 0) + score * 3 # Title gets 3x weight
 
 for paper_id in abstract_results:
     node_index = paper_id['node_index']
     score = paper_id.get('score', 0.0)
-    all_results[node_index] = all_results.get(node_index, 0) + score * 2  # Abstract gets 2x weight
+    all_results[node_index] = all_results.get(node_index, 0) + score * 2 # Abstract gets 2x weight
 
 for paper_id in content_results:
     node_index = paper_id['node_index']
     score = paper_id.get('score', 0.0)
-    all_results[node_index] = all_results.get(node_index, 0) + score * 1  # Content gets 1x weight
+    all_results[node_index] = all_results.get(node_index, 0) + score * 1 # Content gets 1x weight
 
 # Sort by combined score
 sorted_papers = sorted(all_results.items(), key=lambda x: x[1], reverse=True)
@@ -797,7 +797,7 @@ final_result = {{
     'count': len(result_papers),
     'query': '{query}',
     'strategy': 'general_multi_modal_search',
-    'scores': dict(sorted_papers[:20]),  # Top 20 with scores
+    'scores': dict(sorted_papers[:20]), # Top 20 with scores
     'steps': [
         {{'step': 'title_search', 'count': len(title_papers)}},
         {{'step': 'abstract_search', 'count': len(abstract_papers)}},
@@ -951,7 +951,7 @@ result = final_result
         with open(evidence_file, 'w') as f:
             json.dump(evidence, f, indent=2)
         
-        logger.info(f"💾 Saved query evidence to {evidence_file}")
+        logger.info(f" Saved query evidence to {evidence_file}")
     
     def get_agent_stats(self) -> Dict[str, Any]:
         """Get agent statistics"""
@@ -971,7 +971,7 @@ result = final_result
 
 def main():
     """Test the flexible MAG agent"""
-    logger.info("🧬 Testing Flexible MAG Agent")
+    logger.info(" Testing Flexible MAG Agent")
     
     try:
         # Initialize agent
@@ -984,7 +984,7 @@ def main():
         if not agent.load_all():
             return False
         
-        logger.info("✅ Flexible MAG Agent loaded successfully!")
+        logger.info(" Flexible MAG Agent loaded successfully!")
         
         # Test queries
         test_queries = [
@@ -995,29 +995,29 @@ def main():
         ]
         
         for i, query in enumerate(test_queries):
-            logger.info(f"🔍 Testing query {i+1}: {query}")
+            logger.info(f" Testing query {i+1}: {query}")
             result = agent.solve_query(query, f"test_{i+1}")
             
             if result['success']:
                 execution_result = result['execution_result']
                 if 'results' in execution_result:
                     papers = execution_result['results'].get('papers', [])
-                    logger.info(f"  ✅ Found {len(papers)} papers")
+                    logger.info(f" Found {len(papers)} papers")
                 else:
-                    logger.info(f"  ✅ Execution completed")
+                    logger.info(f" Execution completed")
             else:
-                logger.error(f"  ❌ Query failed: {result.get('error', 'Unknown error')}")
+                logger.error(f" Query failed: {result.get('error', 'Unknown error')}")
         
         # Print statistics
-        logger.info("📊 Agent statistics:")
+        logger.info(" Agent statistics:")
         stats = agent.get_agent_stats()
         for key, value in stats.items():
-            logger.info(f"  {key}: {value}")
+            logger.info(f" {key}: {value}")
         
         return True
         
     except Exception as e:
-        logger.error(f"❌ Failed to test Flexible MAG Agent: {e}")
+        logger.error(f" Failed to test Flexible MAG Agent: {e}")
         import traceback
         traceback.print_exc()
         return False

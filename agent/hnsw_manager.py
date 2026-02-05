@@ -21,8 +21,8 @@ class MAGHNSWManager:
         self.indices: Dict[str, faiss.IndexHNSWFlat] = {}
         self.mappings: Dict[str, List[int]] = {}
         self.manifest: Optional[Dict[str, Any]] = None
-        self.graph_loader = graph_loader  # For node type mappings only
-        self.neo4j_driver = neo4j_driver  # For fetching node metadata from Neo4j
+        self.graph_loader = graph_loader # For node type mappings only
+        self.neo4j_driver = neo4j_driver # For fetching node metadata from Neo4j
         
         # Statistics
         self.stats = {
@@ -40,9 +40,9 @@ class MAGHNSWManager:
         if manifest_path.exists():
             with open(manifest_path, 'r') as f:
                 self.manifest = json.load(f)
-            logger.info("📄 Loaded main HNSW manifest")
+            logger.info(" Loaded main HNSW manifest")
         else:
-            logger.warning(f"⚠️  Main manifest not found at {manifest_path}")
+            logger.warning(f" Main manifest not found at {manifest_path}")
             self.manifest = {'indices': {}}
         
         # Load field manifest if it exists
@@ -61,7 +61,7 @@ class MAGHNSWManager:
                 field_info['index_path'] = str(self.indices_dir / 'field_display_name_hnsw.faiss')
                 field_info['mapping_path'] = str(self.indices_dir / 'field_display_name_mapping.pkl')
                 self.manifest['indices']['field_display_name_embedding'] = field_info
-                logger.info("📄 Loaded field_display_name_embedding from field manifest")
+                logger.info(" Loaded field_display_name_embedding from field manifest")
         
         # Load institution manifest if it exists
         institution_manifest_path = self.indices_dir / 'institution_hnsw_manifest.json'
@@ -80,9 +80,9 @@ class MAGHNSWManager:
                 institution_info['index_path'] = str(self.indices_dir / 'institution_embedding_hnsw.faiss')
                 institution_info['mapping_path'] = str(self.indices_dir / 'institution_embedding_mapping.pkl')
                 self.manifest['indices']['institution_embedding'] = institution_info
-                logger.info("📄 Loaded institution_embedding from institution manifest")
+                logger.info(" Loaded institution_embedding from institution manifest")
         
-        logger.info(f"📊 Available features: {list(self.manifest.get('indices', {}).keys())}")
+        logger.info(f" Available features: {list(self.manifest.get('indices', {}).keys())}")
         
         return True
     
@@ -100,11 +100,11 @@ class MAGHNSWManager:
             mapping_path = self.indices_dir / f"{feature_name}_mapping.pkl"
         
         if not index_path.exists():
-            logger.warning(f"⚠️  Index not found: {index_path}")
+            logger.warning(f" Index not found: {index_path}")
             return False
         
         if not mapping_path.exists():
-            logger.warning(f"⚠️  Mapping not found: {mapping_path}")
+            logger.warning(f" Mapping not found: {mapping_path}")
             return False
         
         try:
@@ -121,22 +121,22 @@ class MAGHNSWManager:
             self.stats['total_embeddings'] += len(node_indices)
             self.stats['available_features'].append(feature_name)
             
-            logger.info(f"✅ Loaded {feature_name}: {len(node_indices):,} embeddings")
+            logger.info(f" Loaded {feature_name}: {len(node_indices):,} embeddings")
             
             return True
             
         except Exception as e:
-            logger.error(f"❌ Failed to load {feature_name}: {e}")
+            logger.error(f" Failed to load {feature_name}: {e}")
             return False
     
     def load_all_indices(self):
         """Load all available HNSW indices"""
-        logger.info("🔍 Loading all HNSW indices...")
+        logger.info(" Loading all HNSW indices...")
         
         # Load manifest first
         if not self.load_manifest():
             # Fallback: scan directory for available indices
-            logger.info("🔍 Scanning directory for available indices...")
+            logger.info(" Scanning directory for available indices...")
             index_files = list(self.indices_dir.glob("*_hnsw.faiss"))
             
             for index_file in index_files:
@@ -147,8 +147,8 @@ class MAGHNSWManager:
             for feature_name in self.manifest.get('indices', {}).keys():
                 self.load_index(feature_name)
         
-        logger.info(f"✅ Loaded {self.stats['loaded_indices']} indices")
-        logger.info(f"📊 Total embeddings: {self.stats['total_embeddings']:,}")
+        logger.info(f" Loaded {self.stats['loaded_indices']} indices")
+        logger.info(f" Total embeddings: {self.stats['total_embeddings']:,}")
     
     def search(self, feature_name: str, query_embedding: np.ndarray, 
                include_scores: bool = True) -> List[Dict[str, Any]]:
@@ -171,11 +171,11 @@ class MAGHNSWManager:
             List of results with node indices and optional scores (adaptively stopped based on similarity drops)
         """
         if feature_name not in self.indices:
-            logger.error(f"❌ Index not loaded: {feature_name}")
+            logger.error(f" Index not loaded: {feature_name}")
             return []
         
         if feature_name not in self.mappings:
-            logger.error(f"❌ Mapping not loaded: {feature_name}")
+            logger.error(f" Mapping not loaded: {feature_name}")
             return []
         
         index = self.indices[feature_name]
@@ -189,9 +189,9 @@ class MAGHNSWManager:
         initial_k = min(25, len(node_indices))
         
         # Search with scores (required for similarity-based stopping)
-        logger.info(f"🔍 HNSW search: feature={feature_name}, initial_k={initial_k}, query_shape={query.shape}")
+        logger.info(f" HNSW search: feature={feature_name}, initial_k={initial_k}, query_shape={query.shape}")
         scores, indices = index.search(query, initial_k)
-        logger.info(f"📊 Search returned {len(scores[0])} scores, {len(indices[0])} indices")
+        logger.info(f" Search returned {len(scores[0])} scores, {len(indices[0])} indices")
         
         if len(scores[0]) == 0:
             return []
@@ -221,31 +221,31 @@ class MAGHNSWManager:
             # Filter out infinite values for percentile calculation
             finite_increases = [inc for inc in increases if inc != float('inf')]
             if finite_increases:
-                threshold = np.percentile(finite_increases, 95)  # Use 95th percentile instead of 80th
-                abs_threshold = np.percentile(abs_differences, 95)  # Absolute difference threshold
-                logger.info(f"📊 Calculated 95th percentile increase threshold: {threshold:.2f}%")
-                logger.info(f"📊 Calculated 95th percentile absolute difference threshold: {abs_threshold:.6f}")
+                threshold = np.percentile(finite_increases, 95) # Use 95th percentile instead of 80th
+                abs_threshold = np.percentile(abs_differences, 95) # Absolute difference threshold
+                logger.info(f" Calculated 95th percentile increase threshold: {threshold:.2f}%")
+                logger.info(f" Calculated 95th percentile absolute difference threshold: {abs_threshold:.6f}")
                 
                 # Find first large increase (sudden drop in quality)
                 # Use BOTH percentage AND absolute difference to avoid false positives on tiny scores
-                stop_index = len(score_values)  # Default: use all results
+                stop_index = len(score_values) # Default: use all results
                 for i, (increase, abs_diff) in enumerate(zip(increases, abs_differences)):
                     # Stop if: infinite increase OR (large percentage increase AND significant absolute difference)
                     # For very small scores (< 1e-10), require larger absolute difference (> 0.01)
                     is_large_percentage = increase == float('inf') or (finite_increases and increase >= threshold)
-                    is_significant_absolute = abs_diff >= max(abs_threshold, 0.01)  # At least 0.01 absolute difference
+                    is_significant_absolute = abs_diff >= max(abs_threshold, 0.01) # At least 0.01 absolute difference
                     
                     if is_large_percentage and is_significant_absolute:
-                        stop_index = i + 1  # Include the result before the big increase
-                        logger.info(f"⚠️ Large distance increase detected at position {i+1}: {increase:.2f}% increase, {abs_diff:.6f} absolute (thresholds: {threshold:.2f}%, {max(abs_threshold, 0.01):.6f}), stopping early")
+                        stop_index = i + 1 # Include the result before the big increase
+                        logger.info(f" Large distance increase detected at position {i+1}: {increase:.2f}% increase, {abs_diff:.6f} absolute (thresholds: {threshold:.2f}%, {max(abs_threshold, 0.01):.6f}), stopping early")
                         break
                 
                 if stop_index == len(score_values):
-                    logger.info(f"✅ No large increase detected, using all {len(score_values)} results")
+                    logger.info(f" No large increase detected, using all {len(score_values)} results")
             else:
                 # All increases are infinite (score[i] = 0 for all)
                 stop_index = 1
-                logger.info(f"✅ All first scores are perfect (0), stopping after 1 result")
+                logger.info(f" All first scores are perfect (0), stopping after 1 result")
         else:
             stop_index = len(score_values)
         
@@ -255,7 +255,7 @@ class MAGHNSWManager:
             idx = indices[0][i]
             score = score_values[i]
             
-            if idx < 0 or idx >= len(node_indices):  # Invalid index
+            if idx < 0 or idx >= len(node_indices): # Invalid index
                 continue
             
             node_index = node_indices[idx]
@@ -289,7 +289,7 @@ class MAGHNSWManager:
             results.append(result)
         
         stopped_early = len(results) < len(scores[0])
-        logger.info(f"✅ Returned {len(results)} results (stopped early: {stopped_early})")
+        logger.info(f" Returned {len(results)} results (stopped early: {stopped_early})")
         return results
     
     def search_multiple_features(self, query_embeddings: Dict[str, np.ndarray]) -> Dict[str, List[Dict[str, Any]]]:
@@ -308,7 +308,7 @@ class MAGHNSWManager:
             if feature_name in self.indices:
                 results[feature_name] = self.search(feature_name, query_embedding)
             else:
-                logger.warning(f"⚠️  Index not available: {feature_name}")
+                logger.warning(f" Index not available: {feature_name}")
                 results[feature_name] = []
         
         return results
@@ -410,7 +410,7 @@ class MAGHNSWManager:
                 return None
                 
         except Exception as e:
-            logger.warning(f"⚠️ Failed to fetch metadata from Neo4j for node {node_index}: {e}")
+            logger.warning(f" Failed to fetch metadata from Neo4j for node {node_index}: {e}")
             return None
 
 
@@ -418,13 +418,13 @@ def main():
     """Test the HNSW manager"""
     indices_dir = "/shared/khoja/CogComp/output/mag_hnsw_indices"
     
-    logger.info("🧬 Testing MAG HNSW Manager")
+    logger.info(" Testing MAG HNSW Manager")
     
     try:
         manager = MAGHNSWManager(indices_dir)
         manager.load_all_indices()
         
-        logger.info("✅ HNSW Manager loaded successfully!")
+        logger.info(" HNSW Manager loaded successfully!")
         
         # Test search with dummy embedding
         dummy_embedding = np.random.randn(384).astype(np.float32)
@@ -432,16 +432,16 @@ def main():
         # Try searching a few features
         for feature in ['original_title_embedding', 'abstract_embedding', 'author_embedding']:
             if manager.is_available(feature):
-                logger.info(f"🔍 Testing search on {feature}...")
+                logger.info(f" Testing search on {feature}...")
                 results = manager.search(feature, dummy_embedding, top_k=5)
-                logger.info(f"  Results: {len(results)} found")
+                logger.info(f" Results: {len(results)} found")
                 if results:
-                    logger.info(f"  Top result: node_index {results[0]['node_index']}, score {results[0]['score']:.4f}")
+                    logger.info(f" Top result: node_index {results[0]['node_index']}, score {results[0]['score']:.4f}")
         
         return True
         
     except Exception as e:
-        logger.error(f"❌ Failed to load HNSW manager: {e}")
+        logger.error(f" Failed to load HNSW manager: {e}")
         import traceback
         traceback.print_exc()
         return False

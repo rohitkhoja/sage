@@ -37,7 +37,7 @@ class MAGClient:
                     return False
             
             self.connected = True
-            logger.info("✅ Connected to persistent server")
+            logger.info(" Connected to persistent server")
             return True
             
         except Exception as e:
@@ -60,7 +60,7 @@ class MAGClient:
     
     def interactive_mode(self):
         """Run interactive mode"""
-        print("🎯 MAG Agent Interactive Client")
+        print(" MAG Agent Interactive Client")
         print("=" * 40)
         print("Type 'help' for available functions")
         print("Type 'info' for system information")
@@ -72,7 +72,7 @@ class MAGClient:
                 command = input("\nMAG> ").strip()
                 
                 if command.lower() == 'quit':
-                    print("👋 Goodbye!")
+                    print(" Goodbye!")
                     break
                 elif command.lower() == 'help':
                     self._show_help()
@@ -83,77 +83,77 @@ class MAGClient:
                     self._display_result(result)
                 
             except KeyboardInterrupt:
-                print("\n👋 Goodbye!")
+                print("\n Goodbye!")
                 break
             except Exception as e:
-                print(f"❌ Error: {e}")
+                print(f" Error: {e}")
     
     def _show_help(self):
         """Show help information"""
         info = self.get_info()
         if 'error' in info:
-            print(f"❌ {info['error']}")
+            print(f" {info['error']}")
             return
         
-        print("\n📋 Available Functions:")
+        print("\n Available Functions:")
         print("-" * 30)
         
         functions = info.get('available_functions', [])
-        for func in functions[:20]:  # Show first 20 functions
-            print(f"  {func}")
+        for func in functions[:20]: # Show first 20 functions
+            print(f" {func}")
         
         if len(functions) > 20:
-            print(f"  ... and {len(functions) - 20} more functions")
+            print(f" ... and {len(functions) - 20} more functions")
         
-        print("\n💡 Examples:")
-        print("  search_papers_by_title(\"machine learning\", 5)")
-        print("  get_papers_by_year_range(2010, 2020)")
-        print("  solve_query(\"papers about AI\", \"session1\")")
-        print("  get_system_info()")
+        print("\n Examples:")
+        print(" search_papers_by_title(\"machine learning\", 5)")
+        print(" get_papers_by_year_range(2010, 2020)")
+        print(" solve_query(\"papers about AI\", \"session1\")")
+        print(" get_system_info()")
     
     def _show_info(self):
         """Show system information"""
         info = self.get_info()
         if 'error' in info:
-            print(f"❌ {info['error']}")
+            print(f" {info['error']}")
             return
         
-        print(f"\n📊 System Information:")
-        print(f"  Loaded: {info.get('is_loaded', False)}")
-        print(f"  Load time: {info.get('load_time', 0):.2f}s")
-        print(f"  Uptime: {info.get('uptime', 0):.2f}s")
-        print(f"  Connections: {info.get('connections', 0)}")
+        print(f"\n System Information:")
+        print(f" Loaded: {info.get('is_loaded', False)}")
+        print(f" Load time: {info.get('load_time', 0):.2f}s")
+        print(f" Uptime: {info.get('uptime', 0):.2f}s")
+        print(f" Connections: {info.get('connections', 0)}")
         
         if 'graph_stats' in info and info['graph_stats']:
             stats = info['graph_stats']
-            print(f"  Graph: {stats.get('total_nodes', 0):,} nodes, {stats.get('total_edges', 0):,} edges")
+            print(f" Graph: {stats.get('total_nodes', 0):,} nodes, {stats.get('total_edges', 0):,} edges")
         
         if 'hnsw_stats' in info and info['hnsw_stats']:
             stats = info['hnsw_stats']
-            print(f"  HNSW: {stats.get('total_embeddings', 0):,} embeddings")
+            print(f" HNSW: {stats.get('total_embeddings', 0):,} embeddings")
     
     def _display_result(self, result):
         """Display execution result"""
         if isinstance(result, dict) and 'error' in result:
-            print(f"❌ {result['error']}")
+            print(f" {result['error']}")
         elif isinstance(result, list):
-            print(f"✅ Found {len(result)} results")
+            print(f" Found {len(result)} results")
             if len(result) <= 5:
                 for i, item in enumerate(result):
-                    print(f"  {i+1}. {item}")
+                    print(f" {i+1}. {item}")
             else:
                 for i, item in enumerate(result[:3]):
-                    print(f"  {i+1}. {item}")
-                print(f"  ... and {len(result) - 3} more")
+                    print(f" {i+1}. {item}")
+                print(f" ... and {len(result) - 3} more")
         elif isinstance(result, dict):
-            print("✅ Result:")
+            print(" Result:")
             for key, value in result.items():
                 if isinstance(value, list) and len(value) > 3:
-                    print(f"  {key}: {len(value)} items")
+                    print(f" {key}: {len(value)} items")
                 else:
-                    print(f"  {key}: {value}")
+                    print(f" {key}: {value}")
         else:
-            print(f"✅ {result}")
+            print(f" {result}")
 
 
 def main():
@@ -161,7 +161,7 @@ def main():
     client = MAGClient()
     
     if not client.connect():
-        print("❌ Failed to connect to server")
+        print(" Failed to connect to server")
         return 1
     
     client.interactive_mode()

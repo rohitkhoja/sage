@@ -206,7 +206,7 @@ class TableProcessor(BaseProcessor):
         # Count frequency and return top keywords
         word_freq = {}
         for word in text_values:
-            if len(word) > 2:  # Filter short words
+            if len(word) > 2: # Filter short words
                 word_freq[word] = word_freq.get(word, 0) + 1
         
         sorted_words = sorted(word_freq.items(), key=lambda x: x[1], reverse=True)

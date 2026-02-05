@@ -33,7 +33,7 @@ OUTPUT_DIR = "/shared/khoja/CogComp/agent/output/ott_qa_batch_1"
 OPENAI_API_KEY = ""
 MODEL = "gpt-4.1-mini"
 MAX_RETRIES = 1
-MAX_WORKERS = 30  # Number of parallel workers
+MAX_WORKERS = 30 # Number of parallel workers
 
 # Ensure output directory exists
 os.makedirs(OUTPUT_DIR, exist_ok=True)
@@ -59,11 +59,11 @@ class OTTQAProcessor:
         """Build the full prompt for GPT"""
         prompt = f"""{self.prompt_template}
 
-## 📚 Few-Shot Examples
+## Few-Shot Examples
 
 {self.few_shot_examples}
 
-## 🎯 Your Task
+## Your Task
 
 Generate Python code to retrieve relevant chunks for this question:
 
@@ -72,7 +72,7 @@ Generate Python code to retrieve relevant chunks for this question:
 """
         if retry_context:
             prompt += f"""
-## ⚠️ Previous Attempt Resulted in Empty/Low Results
+## Previous Attempt Resulted in Empty/Low Results
 
 The previous code generated {retry_context}. Please reconsider your approach:
 
@@ -106,7 +106,7 @@ Generate new code with a revised approach:
             )
             return response.choices[0].message.content
         except Exception as e:
-            print(f"❌ GPT API error: {e}")
+            print(f" GPT API error: {e}")
             return None
     
     def _extract_code(self, response: str) -> Optional[str]:
@@ -185,9 +185,9 @@ else:
             return final_chunks, log_output
         
         except subprocess.TimeoutExpired:
-            return [], f"❌ Code execution timed out after 300 seconds"
+            return [], f" Code execution timed out after 300 seconds"
         except Exception as e:
-            return [], f"❌ Execution error: {e}"
+            return [], f" Execution error: {e}"
         finally:
             if os.path.exists(temp_file):
                 try:
@@ -251,11 +251,11 @@ else:
             prompt = self._build_prompt(question, retry_context)
             
             # Call GPT
-            print("\n🤖 Calling GPT-4o-mini...")
+            print("\n Calling GPT-4o-mini...")
             response = self._call_gpt(prompt)
             
             if not response:
-                print("❌ Failed to get response from GPT")
+                print(" Failed to get response from GPT")
                 results['attempts'].append({
                     'attempt': attempt + 1,
                     'error': 'GPT API call failed',
@@ -267,11 +267,11 @@ else:
                 continue
             
             # Extract code
-            print("📝 Extracting code from response...")
+            print(" Extracting code from response...")
             code = self._extract_code(response)
             
             if not code:
-                print("❌ Could not extract code from response")
+                print(" Could not extract code from response")
                 results['attempts'].append({
                     'attempt': attempt + 1,
                     'error': 'Code extraction failed',
@@ -282,17 +282,17 @@ else:
                 })
                 continue
             
-            print(f"✅ Extracted {len(code)} characters of code")
+            print(f" Extracted {len(code)} characters of code")
             
             # Execute code
-            print("🚀 Executing code...")
+            print(" Executing code...")
             final_chunks, log_output = self._execute_code(code, question)
             
             # Calculate Recall@20
             recall_at_20 = self.calculate_recall_at_k(final_chunks, gold_docs, k=20)
             
-            print(f"✅ Execution complete: {len(final_chunks)} chunks retrieved")
-            print(f"📊 Recall@20: {recall_at_20:.2f}%")
+            print(f" Execution complete: {len(final_chunks)} chunks retrieved")
+            print(f" Recall@20: {recall_at_20:.2f}%")
             
             # Store attempt
             attempt_result = {
@@ -310,15 +310,15 @@ else:
             # Success criteria: have some results AND recall > 0
             if final_chunks and recall_at_20 > 0:
                 results['success'] = True
-                print(f"✅ Success! Found {len(final_chunks)} chunks with Recall@20: {recall_at_20:.2f}%")
+                print(f" Success! Found {len(final_chunks)} chunks with Recall@20: {recall_at_20:.2f}%")
                 break
             elif final_chunks:
                 # Have results but no recall - might retry
-                print(f"⚠️ Got {len(final_chunks)} chunks but Recall@20 is 0%")
+                print(f" Got {len(final_chunks)} chunks but Recall@20 is 0%")
                 if attempt < MAX_RETRIES:
                     print("Retrying...")
             else:
-                print(f"⚠️ No chunks retrieved, {'retrying...' if attempt < MAX_RETRIES else 'max retries reached'}")
+                print(f" No chunks retrieved, {'retrying...' if attempt < MAX_RETRIES else 'max retries reached'}")
         
         return results
     
@@ -365,16 +365,16 @@ else:
                 f.write(f"GENERATED CODE:\n{'-'*80}\n{attempt.get('code', 'N/A')[:3000]}\n\n")
                 f.write(f"{'='*80}\n\n")
         
-        print(f"📁 Results saved:")
-        print(f"   JSON: {json_file}")
-        print(f"   TXT:  {txt_file}")
+        print(f" Results saved:")
+        print(f" JSON: {json_file}")
+        print(f" TXT: {txt_file}")
 
 
 def calculate_existing_recall(question_id: str, output_dir: Path, gold_docs: List[str]) -> float:
     """Calculate Recall@20 for a question based on existing results"""
     json_file = output_dir / f"question_{question_id}.json"
     if not json_file.exists():
-        return -1.0  # Not processed yet
+        return -1.0 # Not processed yet
     
     try:
         with open(json_file, 'r') as f:
@@ -399,14 +399,14 @@ def process_single_question(question_data: Tuple[str, str, List[str]], processor
             stats['processed'] += 1
             stats['total_recall'] += results['recall_at_20']
             avg_recall = stats['total_recall'] / stats['processed']
-            print(f"\n✅ [{stats['processed']}/{stats['total']}] Q{question_id}: "
+            print(f"\n [{stats['processed']}/{stats['total']}] Q{question_id}: "
                   f"Recall@20 = {results['recall_at_20']:.2f}% | "
                   f"Running Avg = {avg_recall:.2f}%")
         
         return results
         
     except Exception as e:
-        print(f"❌ Error processing question {question_id}: {e}")
+        print(f" Error processing question {question_id}: {e}")
         error_results = {
             'question_id': question_id,
             'question': question,
@@ -430,7 +430,7 @@ def main():
     processor = OTTQAProcessor()
     
     # Read CSV file
-    print(f"📖 Reading CSV file: {CSV_FILE}")
+    print(f" Reading CSV file: {CSV_FILE}")
     questions = []
     
     with open(CSV_FILE, 'r', encoding='utf-8') as f:
@@ -447,10 +447,10 @@ def main():
             
             questions.append((question_id, question, gold_docs))
     
-    print(f"✅ Found {len(questions)} questions")
+    print(f" Found {len(questions)} questions")
     
     # Check existing results
-    print(f"\n📊 Checking existing results...")
+    print(f"\n Checking existing results...")
     questions_to_process = []
     skipped_count = 0
     
@@ -458,16 +458,16 @@ def main():
         existing_recall = calculate_existing_recall(question_id, Path(OUTPUT_DIR), gold_docs)
         
         if existing_recall >= 50.0:
-            print(f"⏭️  Skipping Q{question_id}: Recall@20 = {existing_recall:.1f}% (>= 50%)")
+            print(f" Skipping Q{question_id}: Recall@20 = {existing_recall:.1f}% (>= 50%)")
             skipped_count += 1
         else:
             if existing_recall >= 0:
-                print(f"✅ Will reprocess Q{question_id}: Recall@20 = {existing_recall:.1f}% (< 50%)")
+                print(f" Will reprocess Q{question_id}: Recall@20 = {existing_recall:.1f}% (< 50%)")
             else:
-                print(f"✅ Will process Q{question_id}: Not yet processed")
+                print(f" Will process Q{question_id}: Not yet processed")
             questions_to_process.append((question_id, question, gold_docs))
     
-    print(f"\n📊 Summary: {skipped_count} skipped, {len(questions_to_process)} to process\n")
+    print(f"\n Summary: {skipped_count} skipped, {len(questions_to_process)} to process\n")
     
     # Process questions in parallel
     if not questions_to_process:
@@ -481,7 +481,7 @@ def main():
         'total_recall': 0.0
     }
     
-    print(f"🚀 Starting parallel processing with {MAX_WORKERS} workers...\n")
+    print(f" Starting parallel processing with {MAX_WORKERS} workers...\n")
     
     # Process questions in parallel
     with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
@@ -495,18 +495,18 @@ def main():
         # Wait for completion
         for future in as_completed(futures):
             try:
-                future.result()  # This will raise any exceptions that occurred
+                future.result() # This will raise any exceptions that occurred
             except Exception as e:
                 q_data = futures[future]
-                print(f"❌ Unexpected error with question {q_data[0]}: {e}")
+                print(f" Unexpected error with question {q_data[0]}: {e}")
     
     # Final summary
     print(f"\n{'='*80}")
-    print("✅ Batch processing complete!")
-    print(f"📁 Results saved to: {OUTPUT_DIR}")
+    print(" Batch processing complete!")
+    print(f" Results saved to: {OUTPUT_DIR}")
     if stats['processed'] > 0:
-        print(f"📊 Final Average Recall@20: {stats['total_recall'] / stats['processed']:.2f}%")
-        print(f"📊 Total Questions Processed: {stats['processed']}/{stats['total']}")
+        print(f" Final Average Recall@20: {stats['total_recall'] / stats['processed']:.2f}%")
+        print(f" Total Questions Processed: {stats['processed']}/{stats['total']}")
     print(f"{'='*80}\n")
 
 

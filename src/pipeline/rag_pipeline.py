@@ -88,7 +88,7 @@ class RAGPipeline:
                     structural_link=metadata.get('structural_link', []),
                     original_source=metadata.get('original_source', ''),
                     additional_information=metadata.get('additional_information', ''),
-                    content=metadata.get('content', None)  # Add embedded content
+                    content=metadata.get('content', None) # Add embedded content
                 )
                 
                 # For documents, check if content is embedded; for tables, check file existence
@@ -371,10 +371,10 @@ class RAGPipeline:
         }
         
         # Add type-specific details
-        if hasattr(chunk, 'content'):  # Document chunk
+        if hasattr(chunk, 'content'): # Document chunk
             details["content"] = chunk.content
             details["sentences"] = chunk.sentences
-        else:  # Table chunk
+        else: # Table chunk
             details["rows"] = chunk.rows
             details["column_headers"] = chunk.column_headers
             details["table_description"] = chunk.table_description
